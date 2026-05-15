@@ -1,4 +1,4 @@
-# shell
+# ◐ Shell: A tiny Discord terminal client
 
 To install dependencies:
 
