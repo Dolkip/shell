@@ -1,0 +1,7 @@
+# things for me to do
+
+## Themes
+
+- [ ] OpenTUI has parseColor(). Would replacing Bun.color() with that be better? do later.
+- [ ] Add a system of some sort to check if theme files contain all the required color keys.
+- [ ] Add far more keys to theme files so it can colour every component we have
