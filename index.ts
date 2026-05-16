@@ -1,12 +1,21 @@
-import { Text } from "@opentui/core"
+import { BoxRenderable } from "@opentui/core"
 import { renderer } from "./renderer"
-import { loadTheme } from "./theme"
+import { messageBox, textArea } from "./components/messagebox"
 
-const theme = await loadTheme()
+const app = new BoxRenderable(renderer, {
+  id: "app",
+  flexDirection: "column",
+  width: "100%",
+  height: "100%",
+})
 
-renderer.root.add(
-  Text({
-    content: "Hello, OpenTUI!",
-    fg: theme.accent,
-  }),
-)
+const main = new BoxRenderable(renderer, {
+  id: "main",
+  flexGrow: 1,
+})
+
+app.add(main)
+app.add(messageBox)
+
+renderer.root.add(app)
+textArea.focus()
