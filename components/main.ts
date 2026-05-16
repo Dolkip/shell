@@ -3,6 +3,9 @@ import { renderer } from "../renderer"
 import { messageBox, textArea } from "./messagebox"
 import { banner } from "./banner"
 import { chatBox } from "./chat"
+import { fetchMessages, client } from "../discord"
+import { makeMessage } from "./message"
+import config from "../config.toml" with { type: "toml" }
 
 export const main = new BoxRenderable(renderer, {
     id: "main",
@@ -16,5 +19,19 @@ main.add(banner)
 main.add(chatBox)
 main.add(messageBox)
 
-//focuses on the text area so you start typing right away
+if (client.isReady()) {
+    fetchMessages(config.id).then(messages => {
+        for (const msg of messages) {
+            chatBox.add(makeMessage(msg))
+        }
+    })
+} else {
+    client.once("ready", async () => {
+        const messages = await fetchMessages(config.id)
+        for (const msg of messages) {
+            chatBox.add(makeMessage(msg))
+        }
+    })
+}
+
 textArea.focus()

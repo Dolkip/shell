@@ -10,7 +10,7 @@ async function main() {
   await client.login(config.token)
 
   await new Promise<void>((resolve) => {
-    client.once("ready", resolve)
+    client.once("ready", () => resolve())
   })
 
   console.log("discord ready! starting TUI...")
