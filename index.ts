@@ -1,6 +1,7 @@
 import { BoxRenderable } from "@opentui/core"
 import { renderer } from "./renderer"
 import { messageBox, textArea } from "./components/messagebox"
+import { banner } from "./components/banner"
 
 const app = new BoxRenderable(renderer, {
   id: "app",
@@ -20,6 +21,9 @@ const main = new BoxRenderable(renderer, {
 
 app.add(main)
 app.add(messageBox)
+app.add(banner)
 
 renderer.root.add(app)
+
+//focuses on the text area so you start typing right away
 textArea.focus()
