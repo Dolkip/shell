@@ -13,8 +13,9 @@ export const chat = new BoxRenderable(renderer, {
 export const chatBox = new BoxRenderable(renderer, {
     id: "chat-box",
     width: "100%",
-    flexShrink: 0,
-    marginTop: "auto",
+    flexGrow: 1,
+    flexShrink: 1,
+    minHeight: 0,
     flexDirection: "column",
     border: true,
     borderStyle: "rounded",

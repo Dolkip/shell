@@ -11,11 +11,14 @@ export const textArea = new TextareaRenderable(renderer, {
     maxHeight: 5,
   
     backgroundColor: Theme.textareabackground,
-    focusedBackgroundColor: "#222222",
+    focusedBackgroundColor: Theme.highlight,
     textColor: Theme.text,
     cursorColor: Theme.accent,
-    placeholder: "Message here. Ctrl+S to send.",
+    placeholder: "Type here. Ctrl+S to send.",
     onSubmit: () => {
+      if (textArea.plainText.length === 0) {
+        return;
+      }
       console.log("sent:", textArea.plainText);
       sendMessage("1504647011369226250", textArea.plainText);
       textArea.setText(""); //wipe textarea

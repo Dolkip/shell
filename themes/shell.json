@@ -3,6 +3,7 @@
     "accent": "#5865F2",
     "text": "#FFFFFF",
     "textareabackground": "#1a1a1a",
+    "highlight": "#444444",
     "border": "#FFFFFF",
     "dim": "#888888"
 }
