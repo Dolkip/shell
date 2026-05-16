@@ -2,14 +2,18 @@ import { Client, GatewayIntentBits } from "discord.js";
 import config from "./config.toml" with { type: "toml" }
 
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds],
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent
+  ],
 });
 
 let ready = false;
 
-client.once("ready", () => {
-  ready = true;
-  console.log(`Logged in as ${client.user?.tag}`);
+client.on("debug", console.log);
+client.on("ready", () => {
+  console.log("READY FIRED:", client.user?.tag);
 });
 
 await client.login(config.token);

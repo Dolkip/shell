@@ -1,15 +1,18 @@
-import { BoxRenderable } from "@opentui/core"
-import { renderer } from "./renderer"
-import { main } from "./components/main"
+import { client } from "./discord"
+import { startTUI } from "./tui"
 
-const app = new BoxRenderable(renderer, {
-  id: "app",
-  flexDirection: "column",
-  width: "100%",
-  height: "100%",
-  flexGrow: 1,
-})
+async function main() {
+  console.log("logging into discord...")
 
-app.add(main)
+  await client.login(process.env.TOKEN)
 
-renderer.root.add(app)
+  await new Promise<void>((resolve) => {
+    client.once("ready", resolve)
+  })
+
+  console.log("discord ready → starting TUI")
+
+  startTUI()
+}
+
+main()
