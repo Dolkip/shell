@@ -1,4 +1,7 @@
 {
     "background": "#000000",
-    "accent": "#5865F2"
+    "accent": "#5865F2",
+    "text": "#FFFFFF",
+    "textareabackground": "#1a1a1a",
+    "border": "#FFFFFF"
 }
