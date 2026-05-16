@@ -14,21 +14,12 @@ export const textArea = new TextareaRenderable(renderer, {
     focusedBackgroundColor: "#222222",
     textColor: Theme.text,
     cursorColor: Theme.accent,
+    onSubmit: () => {
+      console.log("Submitted:", textArea.plainText);
+      textArea.setText(""); //wipe textarea
+    },
+    keyBindings: [{ name: "s", ctrl: true, action: "submit" }],
   })
-
-renderer.addInputHandler((sequence) => {
-    // Ctrl+S as submit (reliable across terminals)
-    if (sequence === "\x13") {
-      const msg = textArea.plainText?.trim()
-      if (!msg) return true
-  
-      sendMessage("1504647011369226250", msg)
-      textArea.setText("")
-      return true
-    }
-  
-    return false
-})
 
 //neat box it lives in
 export const messageBox = new BoxRenderable(renderer, {
