@@ -2,7 +2,7 @@ import { BoxRenderable } from "@opentui/core"
 import { renderer } from "./renderer"
 import { main } from "./components/main" 
 
-export function startTUI() {
+export function TUI() {
     const app = new BoxRenderable(renderer, {
       id: "app",
       flexDirection: "column",

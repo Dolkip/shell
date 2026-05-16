@@ -1,18 +1,21 @@
 import { client } from "./discord"
-import { startTUI } from "./tui"
+import { TUI } from "./tui"
+import kleur from "kleur"
+import config from "./config.toml" with { type: "toml" }
 
 async function main() {
-  console.log("logging into discord...")
+  console.log("◐ Shell: " + kleur.dim("is a tiny Discord terminal client"))
+  console.log("Starting...")
 
-  await client.login(process.env.TOKEN)
+  await client.login(config.token)
 
   await new Promise<void>((resolve) => {
     client.once("ready", resolve)
   })
 
-  console.log("discord ready → starting TUI")
+  console.log("discord ready! starting TUI...")
 
-  startTUI()
+  TUI()
 }
 
 main()
