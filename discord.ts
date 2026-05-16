@@ -1,7 +1,7 @@
 import { Client, GatewayIntentBits } from "discord.js";
 import config from "./config.toml" with { type: "toml" }
 
-const client = new Client({
+export const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
@@ -9,11 +9,8 @@ const client = new Client({
   ],
 });
 
-let ready = false;
-
-client.on("debug", console.log);
-client.on("ready", () => {
-  console.log("READY FIRED:", client.user?.tag);
+client.on("clientReady", () => {
+  console.log("ready now! wooo!", client.user?.tag);
 });
 
 await client.login(config.token);
@@ -25,7 +22,8 @@ export async function sendMessage(
     const channel = await client.channels.fetch(channelId);
   
     if (!channel || !("send" in channel)) {
-      throw new Error("Channel cannot send messages");
+      throw new Error("cand sent message somehow");
+      // this only exists to shut up typescript because it keeps complaining that channel might not have .send()
     }
   
     await channel.send(message);

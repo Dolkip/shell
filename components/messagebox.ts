@@ -15,7 +15,8 @@ export const textArea = new TextareaRenderable(renderer, {
     textColor: Theme.text,
     cursorColor: Theme.accent,
     onSubmit: () => {
-      console.log("Submitted:", textArea.plainText);
+      console.log("sent:", textArea.plainText);
+      sendMessage("1504647011369226250", textArea.plainText);
       textArea.setText(""); //wipe textarea
     },
     keyBindings: [{ name: "s", ctrl: true, action: "submit" }],
