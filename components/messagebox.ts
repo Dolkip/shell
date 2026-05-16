@@ -14,6 +14,7 @@ export const textArea = new TextareaRenderable(renderer, {
     focusedBackgroundColor: "#222222",
     textColor: Theme.text,
     cursorColor: Theme.accent,
+    placeholder: "Message here. Ctrl+S to send.",
     onSubmit: () => {
       console.log("sent:", textArea.plainText);
       sendMessage("1504647011369226250", textArea.plainText);
