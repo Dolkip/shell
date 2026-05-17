@@ -5,3 +5,16 @@
 - [ ] OpenTUI has parseColor(). Would replacing Bun.color() with that be better? do later.
 - [ ] Add a system of some sort to check if theme files contain all the required color keys.
 - [ ] Add far more keys to theme files so it can colour every component we have
+
+## Chat
+
+- [ ] System to dynamically load and unload message history, set amount of 50-message chunks loaded at one time to save memory
+- [ ] Write channels.ts component to add a sidebar on the left that contains the servers and their channels. To be selected by simply clicking for now.
+- [ ] Parser that (presumably) uses opentui's inline t import to read the message markdown and format it, then probably return a TextRenderable that is then added to the container which is returned by makeMessage()
+- [ ] Optional user view sidebar that squishes chat and messagebox to the side. appears on right like discord.
+- [ ] A way to react, delete own, reply, and the such to messages.
+- [ ] DMs, user view. No idea of how to do. Maybe opentui tabs???
+- [ ] User message parser for things like mentions. @dolkip for instance should be turned into <@dolkipid>. Maybe a popup hint thing would be neat.
+- [ ] Awesome thing for typing kaomoji quickly
+
+- [ ] Keyboard navigation system for SSH and such
