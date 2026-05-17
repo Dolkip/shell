@@ -34,4 +34,10 @@ if (client.isReady()) {
     })
 }
 
+client.on("messageCreate", (message) => {
+    if (message.channelId === config.id) {
+        chatBox.add(makeMessage(message))
+    }
+})
+
 textArea.focus()
