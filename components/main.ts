@@ -20,23 +20,23 @@ main.add(chatBox)
 main.add(messageBox)
 
 if (client.isReady()) {
-    fetchMessages(config.id).then(messages => {
+    fetchMessages(config.id).then(async messages => {
         for (const msg of messages) {
-            chatBox.add(makeMessage(msg))
+            chatBox.add(await makeMessage(msg))
         }
     })
 } else {
     client.once("ready", async () => {
         const messages = await fetchMessages(config.id)
         for (const msg of messages) {
-            chatBox.add(makeMessage(msg))
+            chatBox.add(await makeMessage(msg))
         }
     })
 }
 
-client.on("messageCreate", (message) => {
+client.on("messageCreate", async (message) => {
     if (message.channelId === config.id) {
-        chatBox.add(makeMessage(message))
+        chatBox.add(await makeMessage(message))
     }
 })
 
