@@ -1,10 +1,9 @@
 import { client } from "./discord"
 import { TUI } from "./tui"
 import kleur from "kleur"
+import config from "./config.toml" with { type: "toml" }
 
-const token = process.env.DISCORD_TOKEN ?? (() => {
-  throw new Error("DISCORD_TOKEN environment variable is required")
-})()
+const token = process.env.DISCORD_TOKEN ?? config.token
 
 function shutdown() {
   client.destroy().catch(() => {})
