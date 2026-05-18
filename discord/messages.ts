@@ -1,7 +1,7 @@
 import { Message } from "discord.js"
 
 import { client } from "./client"
-import { fetchChannel } from "./channels"
+import { fetchChannel } from "./guilds"
 
 export async function fetchMessages(
   channelId: string,
