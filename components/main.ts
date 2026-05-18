@@ -6,7 +6,7 @@ import { chatBox } from "./chat"
 import { fetchMessages, client } from "../discord"
 import { makeMessage } from "./message"
 import { getGuilds } from "../discord"
-import { guildsMenu, initGuildSelector, setupGuildKeyHandler } from "./guildmenu"
+import { guildsMenu, initGuildSelector, setupGuildKeyHandler, setGuildSelectorFocused } from "./guildmenu"
 import config from "../config.toml" with { type: "toml" }
 
 export const main = new BoxRenderable(renderer, {
@@ -66,3 +66,9 @@ client.on("messageCreate", async (message) => {
 textArea.focus()
 
 setupGuildKeyHandler()
+
+renderer.keyInput.on("keypress", (key: any) => {
+    if (key.ctrl && key.name === "tab") {
+        setGuildSelectorFocused(true);
+    }
+});
