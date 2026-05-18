@@ -1,5 +1,4 @@
 import { Guild, type NonThreadGuildBasedChannel } from "discord.js"
-
 import { client } from "./client"
 
 export async function fetchChannel(channelId: string) {
