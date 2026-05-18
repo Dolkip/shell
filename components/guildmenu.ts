@@ -12,25 +12,30 @@ export async function createGuildBox(guildId: string) {
         content: guild.name,
         fg: Theme.accent
     })
-    const channelArray = []
-    const validChannels = channels.filter((ch): ch is Exclude<typeof ch, null | undefined> => ch !== null && ch !== undefined);
+    const channelArray: { name: string; description: string; value: string }[] = []
+    const validChannels = channels;
     let index = 0
     for (const channel of validChannels) {
         const prefix = index === validChannels.length - 1 ? "╰" : "├";
         channelArray.push({
-            name: prefix + "─ #" + (channel.isDMBased() ? channel.id : channel.name),
-            description: channel.id
+            name: prefix + "─ #" + (channel.name ?? channel.id),
+            description: channel.id,
+            value: channel.id
         })
         index++
     }
     const channelSelect = new SelectRenderable(renderer, {
         options: channelArray,
-        textColor: Theme.dim,
-        backgroundColor: Theme.textareabackground
+        textColor: Theme.selectionText,
+        backgroundColor: Theme.selectionBackground,
+        selectedBackgroundColor: Theme.accent,
+        selectedTextColor: Theme.text,
+        descriptionColor: Theme.selectionDescription,
     })
     
     channelSelect.on(SelectRenderableEvents.ITEM_SELECTED, (index: number, option: any) => {
-        console.log("chosen channel ", option.description);
+        console.log("chosen channel ", option.value ?? option.description);
+        // code happens here, loadChannel() perhaps
     })
     
     const guildBox = new BoxRenderable(renderer, {

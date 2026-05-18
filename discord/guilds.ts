@@ -1,4 +1,4 @@
-import { Guild } from "discord.js"
+import { Guild, type NonThreadGuildBasedChannel } from "discord.js"
 
 import { client } from "./client"
 
@@ -26,7 +26,9 @@ export function getGuilds() {
     return Array.from(client.guilds.cache.keys());
 }
 
-export async function getGuildChannels(guild: Guild) {
+export async function getGuildChannels(guild: Guild): Promise<NonThreadGuildBasedChannel[]> {
   const channels = await guild.channels.fetch()
-  return Array.from(channels.values())
+  return Array.from(channels.values()).filter(
+    (ch): ch is NonThreadGuildBasedChannel => ch !== null
+  )
 }

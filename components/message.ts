@@ -26,14 +26,14 @@ export async function makeMessage(message: Message) {
       });
   
       const replyChar = new TextRenderable(renderer, {
-        fg: Theme.dim,
+        fg: Theme.mutedText,
         content: "╭─",
         flexShrink: 0,
       });
   
       const replyColour = getColour(
         repliedTo.member ?? undefined,
-        Theme.text?.toString()
+        Theme.text.toString()
       );
   
       const replyUser = new TextRenderable(renderer, {
@@ -43,7 +43,7 @@ export async function makeMessage(message: Message) {
       });
   
       const replyText = new TextRenderable(renderer, {
-        fg: Theme.dim,
+        fg: Theme.mutedText,
         content: repliedTo.content || "[attachment]",
       });
   
@@ -55,7 +55,7 @@ export async function makeMessage(message: Message) {
     } else {
       container.add(
         new TextRenderable(renderer, {
-          fg: Theme.dim,
+          fg: Theme.mutedText,
           content: "╭─ [unavailable message]",
         })
       );
@@ -69,7 +69,7 @@ export async function makeMessage(message: Message) {
 
   const colour = getColour(
     message.member ?? undefined,
-    Theme.text?.toString()
+    Theme.text.toString()
   );
 
   const userText = new TextRenderable(renderer, {

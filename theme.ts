@@ -2,7 +2,23 @@ import { Glob } from "bun"
 import { RGBA } from "@opentui/core"
 import config from "./config.toml" with { type: "toml" }
 
-export type theme = Record<string, RGBA>
+export interface theme {
+    background: RGBA
+    accent: RGBA
+    text: RGBA
+    mutedText: RGBA
+    border: RGBA
+    panelBackground: RGBA
+    panelBackgroundAlt: RGBA
+    inputBackground: RGBA
+    inputFocusedBackground: RGBA
+    inputText: RGBA
+    inputCursor: RGBA
+    selectionBackground: RGBA
+    selectionText: RGBA
+    selectionDescription: RGBA
+    [key: string]: RGBA
+}
 
 const themes = new Glob("themes/*.json")
 
@@ -30,7 +46,7 @@ export async function loadTheme(): Promise<theme> {
         throw new Error(`Theme file "${themePath}" must contain a JSON object`)
     }
 
-    const theme: theme = {}
+    const theme = {} as theme
 
     for (const [key, value] of Object.entries(rawTheme)) {
         if (!isString(value)) {
