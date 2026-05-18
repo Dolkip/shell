@@ -11,7 +11,7 @@ let guildSelectorFocused = false;
 export const guildsMenu = new BoxRenderable(renderer, {
     id: "guilds-menu",
     flexDirection: "column",
-    width: 30,
+    width: 35,
     flexGrow: 1,
     flexShrink: 1,
     minHeight: 0,
@@ -20,15 +20,23 @@ export const guildsMenu = new BoxRenderable(renderer, {
     borderColor: Theme.border,
 })
 
+const guildNameBox = new BoxRenderable(renderer, {
+    id: "guild-name-box",
+    width: "100%",
+    height: 1,
+    flexShrink: 0,
+    backgroundColor: Theme.selectionBackground,
+})
+
 const guildNameText = new TextRenderable(renderer, {
     id: "guild-name",
     content: "Select guild",
     fg: Theme.accent,
     attributes: TextAttributes.BOLD,
-    flexShrink: 0,
 })
 
-guildsMenu.add(guildNameText)
+guildNameBox.add(guildNameText)
+guildsMenu.add(guildNameBox)
 
 async function loadGuildChannels(guildId: string) {
     if (currentGuildId === guildId) return;
@@ -42,7 +50,7 @@ async function loadGuildChannels(guildId: string) {
     const channelArray = channels
         .filter(ch => ch.isTextBased())
         .map(ch => ({
-            name: "#" + (ch.name ?? ch.id),
+            name: "#" + (ch.name ?? ch.id).slice(0, 16),
             description: ch.id,
             value: ch.id
         }));

@@ -35,3 +35,4 @@ config.toml
 
 # Finder (MacOS) folder config
 .DS_Store
+config.toml
