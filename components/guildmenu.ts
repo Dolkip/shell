@@ -1,10 +1,8 @@
-import { BoxRenderable, TextRenderable, SelectRenderable, TabSelectRenderable, TabSelectRenderableEvents, SelectRenderableEvents, ScrollBoxRenderable, type KeyEvent } from "@opentui/core";
+import { BoxRenderable, TextRenderable, SelectRenderable, SelectRenderableEvents, TextAttributes, type KeyEvent } from "@opentui/core";
 import { renderer } from "../renderer";
-import { client } from "../discord"
 import { fetchGuild, getGuildChannels } from "../discord";
 import { Theme } from "../theme";
 
-let guildTabs: TabSelectRenderable | null = null;
 let channelSelect: SelectRenderable | null = null;
 let currentGuildId: string | null = null;
 let guildIds: string[] = [];
@@ -14,19 +12,31 @@ export const guildsMenu = new BoxRenderable(renderer, {
     id: "guilds-menu",
     flexDirection: "column",
     width: 30,
-    flexGrow: 0,
-    flexShrink: 0,
+    flexGrow: 1,
+    flexShrink: 1,
     minHeight: 0,
     border: true,
     borderStyle: "rounded",
     borderColor: Theme.border,
 })
 
+const guildNameText = new TextRenderable(renderer, {
+    id: "guild-name",
+    content: "Select guild",
+    fg: Theme.accent,
+    attributes: TextAttributes.BOLD,
+    flexShrink: 0,
+})
+
+guildsMenu.add(guildNameText)
+
 async function loadGuildChannels(guildId: string) {
     if (currentGuildId === guildId) return;
     currentGuildId = guildId;
 
     const guild = await fetchGuild(guildId);
+    guildNameText.content = guild.name.slice(0, 28) || "Unknown"
+
     const channels = await getGuildChannels(guild);
 
     const channelArray = channels
@@ -49,7 +59,7 @@ async function loadGuildChannels(guildId: string) {
     channelSelect = new SelectRenderable(renderer, {
         options: channelArray,
         width: "100%",
-        height: Math.min(channelArray.length + 1, 10),
+        flexGrow: 1,
         textColor: Theme.selectionText,
         backgroundColor: Theme.selectionBackground,
         selectedBackgroundColor: Theme.accent,
@@ -67,56 +77,19 @@ async function loadGuildChannels(guildId: string) {
 export async function initGuildSelector(guildIdsList: string[]) {
     guildIds = guildIdsList;
 
-    const tabOptions = guildIds.map(id => ({
-        name: id.slice(-4),
-        description: id,
-        value: id
-    }));
-
-    guildTabs = new TabSelectRenderable(renderer, {
-        id: "guild-tabs",
-        options: tabOptions,
-        tabWidth: 8,
-        width: 28,
-        tabColor: Theme.border,
-        activeTabColor: Theme.accent,
-        activeTabTextColor: Theme.text,
-        tabTextColor: Theme.mutedText,
-    });
-
-    guildTabs.on(TabSelectRenderableEvents.TAB_CHANGED, async (index: number, option: any) => {
-        await loadGuildChannels(option.value);
-    });
-
-    guildTabs.on(TabSelectRenderableEvents.ITEM_SELECTED, async (index: number, option: any) => {
-        await loadGuildChannels(option.value);
-    });
-
-    guildTabs.on("blur", () => {
-        guildSelectorFocused = false;
-    });
-
-    guildTabs.on("focus", () => {
-        guildSelectorFocused = true;
-    });
-
-    guildsMenu.add(guildTabs);
-
     if (guildIds.length > 0) {
         await loadGuildChannels(guildIds[0]);
     }
-
-    return guildTabs;
 }
 
 export function setupGuildKeyHandler() {
     renderer.keyInput.on("keypress", (key: KeyEvent) => {
         if (key.ctrl && key.name === "g") {
-            if (!guildSelectorFocused && guildTabs) {
-                guildTabs.focus();
+            if (!guildSelectorFocused && channelSelect) {
+                channelSelect.focus();
                 guildSelectorFocused = true;
             } else if (guildSelectorFocused) {
-                guildTabs?.blur();
+                channelSelect?.blur();
                 guildSelectorFocused = false;
             }
         }

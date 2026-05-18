@@ -26,7 +26,6 @@ const contentArea = new BoxRenderable(renderer, {
     flexDirection: "column",
 })
 
-contentArea.add(banner)
 contentArea.add(chatBox)
 contentArea.add(messageBox)
 

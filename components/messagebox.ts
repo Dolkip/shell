@@ -36,7 +36,6 @@ export const messageBox = new BoxRenderable(renderer, {
     border: true,
     borderStyle: "rounded",
     borderColor: Theme.border,
-    padding: 0,
 })
 
 //puts the thing in the box

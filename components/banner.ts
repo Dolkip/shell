@@ -7,7 +7,7 @@ export const banner = new BoxRenderable(renderer, {
     width: "100%",
     height: 1,
     flexDirection: "row",
-    marginBottom: "auto",
+    flexShrink: 0,
 })
 
 export const bannerTitle = new TextRenderable(renderer, {
