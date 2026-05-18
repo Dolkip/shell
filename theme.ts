@@ -2,7 +2,7 @@ import { Glob } from "bun"
 import { RGBA } from "@opentui/core"
 import config from "./config.toml" with { type: "toml" }
 
-export type Theme = Record<string, RGBA>
+export type theme = Record<string, RGBA>
 
 const themes = new Glob("themes/*.json")
 
@@ -14,7 +14,7 @@ function isString(value: unknown): value is string {
     return typeof value === "string"
 }
 
-export async function loadTheme(): Promise<Theme> {
+export async function loadTheme(): Promise<theme> {
     const themePath = `themes/${config.theme}.json`
 
     if (!themes.match(themePath)) {
@@ -30,7 +30,7 @@ export async function loadTheme(): Promise<Theme> {
         throw new Error(`Theme file "${themePath}" must contain a JSON object`)
     }
 
-    const theme: Theme = {}
+    const theme: theme = {}
 
     for (const [key, value] of Object.entries(rawTheme)) {
         if (!isString(value)) {
