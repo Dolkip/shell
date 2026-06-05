@@ -39,7 +39,6 @@ const guildIdText = new TextRenderable(renderer, {
     id: "guild-id",
     content: "",
     fg: Theme.selectionDescription,
-    fontSize: 10,
 })
 
 guildNameBox.add(guildNameText)

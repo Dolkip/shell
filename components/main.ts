@@ -30,7 +30,7 @@ const contentArea = new BoxRenderable(renderer, {
 let position = 0
 
 const CHUNK_SIZE = config.chunkSize || 50
-const WINDOW_CHUNKS = 2
+const WINDOW_CHUNKS = 3
 const WINDOW_SIZE = CHUNK_SIZE * WINDOW_CHUNKS
 let isHistoryLoading = false
 
@@ -163,6 +163,16 @@ client.on("messageCreate", async (message) => {
         chatBox.scrollTo(chatBox.scrollHeight)
     }
 })
+
+client.on("messageDelete", async (message) => {
+    if (message.channelId === config.id) {
+        const index = chat.findIndex((m) => m.id === message.id)
+        if (index !== -1) {
+            chat.splice(index, 1)
+        }
+        rerenderChat()
+    }
+});
 
 textArea.focus()
 
