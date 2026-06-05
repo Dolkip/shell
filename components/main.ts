@@ -148,6 +148,10 @@ if (client.isReady()) {
 
 client.on("messageCreate", async (message) => {
     if (message.channelId === config.id) {
+        if (chat.some((m) => m.id === message.id)) {
+            return
+        }
+
         if (position > 0) {
             position += 1
             return

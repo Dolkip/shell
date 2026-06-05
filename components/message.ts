@@ -6,6 +6,7 @@ import { getColour } from "../discord"
 
 export async function makeMessage(message: Message) {
   const container = new BoxRenderable(renderer, {
+    id: message.id,
     flexDirection: "column",
     marginBottom: 0,
   });
