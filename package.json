@@ -16,7 +16,6 @@
     "@opentui/core": "^0.2.10",
     "@opentui/core-win32-x64": "0.2.10",
     "discord.js": "^14.26.4",
-    "glob-parent": "^6.0.2",
     "kleur": "^4.1.5"
   }
 }
