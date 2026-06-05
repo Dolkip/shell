@@ -10,3 +10,11 @@ export function getColour(member?: GuildMember, defaultColour = "#FFFFFF"): stri
 
   return role?.hexColor ?? defaultColour
 }
+
+export function getRoles(member?: GuildMember) {
+  if (!member) return []
+  return member.roles.cache
+    .filter(r => r.position > 0)
+    .sort((a, b) => b.position - a.position)
+    .map(r => r.name)
+}
