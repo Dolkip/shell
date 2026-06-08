@@ -36,7 +36,7 @@ async function main() {
   }
 
   await new Promise<void>((resolve) => {
-    client.once("ready", () => resolve())
+    client.once("clientReady", () => resolve())
   })
 
   console.log("discord ready! starting TUI...")

@@ -5,9 +5,10 @@ export const client = new Client({
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildMembers,
   ],
 })
 
-client.on("ready", () => {
+client.on("clientReady", () => {
   console.log(`ready now! wooo! ${client.user?.tag}`)
 })

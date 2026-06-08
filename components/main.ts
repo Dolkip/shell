@@ -51,6 +51,11 @@ function rerenderChat() {
 }
 
 async function initializeChat() {
+    const channel = await client.channels.fetch(config.discord.id)
+    const guild = channel.guild
+    if (guild) {
+        await guild.members.fetch()
+    }
     const messages = await fetchMessages(config.discord.id, WINDOW_SIZE, 0, CHUNK_SIZE)
     chat = await renderMessages(messages)
     position = 0
