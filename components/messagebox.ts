@@ -1,6 +1,7 @@
 import { TextareaRenderable, BoxRenderable } from "@opentui/core"
 import { renderer } from "../renderer"
 import { Theme } from "../theme"
+import { config } from "../config"
 import { sendMessage } from "../discord"
 
 const LINES = 5
@@ -20,7 +21,7 @@ export const textArea = new TextareaRenderable(renderer, {
         return;
       }
       console.log("sent:", textArea.plainText);
-      sendMessage("1504647011369226250", textArea.plainText);
+      sendMessage(config.discord.id, textArea.plainText);
       textArea.setText(""); //wipe textarea
     },
     keyBindings: [{ name: "s", ctrl: true, action: "submit" }],

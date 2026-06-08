@@ -1,6 +1,7 @@
+import { join } from "node:path"
 import { Glob } from "bun"
 import { RGBA } from "@opentui/core"
-import config from "./config.toml" with { type: "toml" }
+import { config, SHELLDIR } from "./config"
 
 export interface theme {
     background: RGBA
@@ -20,7 +21,8 @@ export interface theme {
     [key: string]: RGBA
 }
 
-const themes = new Glob("themes/*.json")
+const THEMES_DIR = join(SHELLDIR, "themes")
+const themes = new Glob("*.json")
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
     return typeof value === "object" && value !== null && !Array.isArray(value)
@@ -30,11 +32,12 @@ function isString(value: unknown): value is string {
     return typeof value === "string"
 }
 
-export async function loadTheme(): Promise<theme> {
-    const themePath = `themes/${config.theme}.json`
+export async function loadTheme(): Promise<void> {
+    const themeFile = `${config.theme}.json`
+    const themePath = join(THEMES_DIR, themeFile)
 
-    if (!themes.match(themePath)) {
-        const availableThemes = Array.from(themes.scanSync(".")).sort()
+    if (!themes.match(themeFile)) {
+        const availableThemes = Array.from(themes.scanSync(THEMES_DIR)).sort()
         throw new Error(
             `Theme "${config.theme}" was not found. Available themes: ${availableThemes.join(", ") || "(none)"}`,
         )
@@ -46,7 +49,7 @@ export async function loadTheme(): Promise<theme> {
         throw new Error(`Theme file "${themePath}" must contain a JSON object`)
     }
 
-    const theme = {} as theme
+    const t = {} as theme
 
     for (const [key, value] of Object.entries(rawTheme)) {
         if (!isString(value)) {
@@ -59,10 +62,10 @@ export async function loadTheme(): Promise<theme> {
             throw new Error(`Theme color "${key}" in "${themePath}" is not a valid color: ${value}`)
         }
 
-        theme[key] = RGBA.fromHex(color)
+        t[key] = RGBA.fromHex(color)
     }
 
-    return theme
+    Theme = t
 }
 
-export const Theme = await loadTheme()
+export let Theme: theme

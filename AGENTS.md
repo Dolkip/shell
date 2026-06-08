@@ -2,10 +2,9 @@
 
 ## Runtime & setup
 - **Bun** (not Node/npm). Install deps: `bun install`. Run: `bun run index.ts`.
-- Requires a Discord bot token. Set via `DISCORD_TOKEN` env var or `token` in `config.toml`.
-- `config.toml` is gitignored (it holds secrets). An example is at `.env.example`.
-- `themes/` dir contains JSON theme files; selected by `theme` field in `config.toml`.
-- Project uses TOML import syntax (`import config from "./config.toml" with { type: "toml" }`) — Bun-specific.
+- Requires a Discord bot token. Set via `DISCORD_TOKEN` env var or `token` in `~/.shell/config.toml`.
+- User data lives in `~/.shell/`: `config.toml`, `state.json`, `themes/*.json`.
+- An example config is at `.env.example`.
 
 ## Commands
 | Command | Purpose |
@@ -17,11 +16,12 @@
 No test framework is configured.
 
 ## Architecture
-- `index.ts` — entrypoint; logs into Discord via `discord.js`, then starts the TUI.
+- `index.ts` — entrypoint; calls `ensureDirectories()`, `loadConfig()`, `loadState()`, logs into Discord, then dynamically imports TUI.
+- `config.ts` — single source of truth: exports `config` and `state` objects, handles loading from `~/.shell/config.toml`, creates default files.
 - `discord/` — Discord API wrapper (client, guilds, messages, members).
 - `components/` — OpenTUI components: chat, message box, guild selector, banner.
 - `renderer.ts` — OpenTUI `createCliRenderer`. Backtick toggles console overlay (size=30%).
-- `theme.ts` — Loads a JSON theme from `themes/<name>.json` and parses colors with `Bun.color()`.
+- `theme.ts` — loads a JSON theme from `~/.shell/themes/<name>.json` and parses colors with `Bun.color()`.
 - `discord/` `GatewayIntentBits`: Guilds, GuildMessages, MessageContent.
 
 ## Key bindings (runtime)
@@ -32,5 +32,6 @@ No test framework is configured.
 - Backtick — toggle debug console overlay.
 
 ## Configuration
-- `config.toml` fields: `theme` (string), `token` (string), `id` (channel ID string, hardcoded fallback in `components/messagebox.ts`).
-- The channel ID `1504647011369226250` is hardcoded in `components/messagebox.ts:23` as the target for sending messages.
+- `~/.shell/config.toml` fields: `theme` (string), `token` (string), `id` (channel ID string), `chunkSize` (number).
+- `~/.shell/state.json` — persisted state (current theme, last channel).
+- `~/.shell/themes/` — contains `*.json` theme files; selected by `theme` in config.

@@ -1,7 +1,7 @@
 import { client } from "./discord"
-import { TUI } from "./tui"
 import kleur from "kleur"
-import config from "./config.toml" with { type: "toml" }
+import { ensureDirectories, loadConfig, loadState, config } from "./config"
+import { loadTheme } from "./theme"
 
 function shutdown() {
   client.destroy().catch(() => {})
@@ -16,9 +16,13 @@ async function main() {
   console.log("◐ Shell: " + kleur.dim("is a tiny Discord terminal client"))
   console.log("Starting...")
 
-  const token = process.env.DISCORD_TOKEN ?? config.token
+  await ensureDirectories()
+  await loadConfig()
+  await loadState()
+
+  const token = process.env.DISCORD_TOKEN ?? config.discord.token
   if (!token) {
-    Bun.write(Bun.stderr, "ERROR: No Discord token configured. Set DISCORD_TOKEN env var or token in config.toml\n")
+    Bun.write(Bun.stderr, "ERROR: No Discord token configured. Set DISCORD_TOKEN env var or token in ~/.shell/config.toml\n")
     shutdown()
     return
   }
@@ -37,6 +41,8 @@ async function main() {
 
   console.log("discord ready! starting TUI...")
 
+  await loadTheme()
+  const { TUI } = await import("./tui")
   TUI()
 }
 

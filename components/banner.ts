@@ -20,7 +20,7 @@ export const bannerTitle = new TextRenderable(renderer, {
 export const bannerText = new TextRenderable(renderer, {
     id: "banner-text",
     content: " is a tiny Discord terminal client",
-    fg: Theme.mutedText,
+    fg: Theme.dim,
 })
 
 banner.add(bannerTitle)

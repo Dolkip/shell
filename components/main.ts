@@ -7,7 +7,7 @@ import { fetchMessages, client } from "../discord"
 import { makeMessage } from "./message"
 import { getGuilds } from "../discord"
 import { guildsMenu, initGuildSelector, setupGuildKeyHandler, setGuildSelectorFocused } from "./guildmenu"
-import config from "../config.toml" with { type: "toml" }
+import { config } from "../config"
 import { Message } from "discord.js"
 
 export const main = new BoxRenderable(renderer, {
@@ -51,7 +51,7 @@ function rerenderChat() {
 }
 
 async function initializeChat() {
-    const messages = await fetchMessages(config.id, WINDOW_SIZE, 0, CHUNK_SIZE)
+    const messages = await fetchMessages(config.discord.id, WINDOW_SIZE, 0, CHUNK_SIZE)
     chat = await renderMessages(messages)
     position = 0
     rerenderChat() 
@@ -67,7 +67,7 @@ async function loadOlderChunk() {
 
     try {
         const offsetForOlderChunk = position + chat.length
-        const olderMessages = await fetchMessages(config.id, CHUNK_SIZE, offsetForOlderChunk, CHUNK_SIZE)
+        const olderMessages = await fetchMessages(config.discord.id, CHUNK_SIZE, offsetForOlderChunk, CHUNK_SIZE)
 
         if (olderMessages.length === 0) {
             return
@@ -97,7 +97,7 @@ async function loadNewerChunk() {
     try {
         const takeCount = Math.min(CHUNK_SIZE, position)
         const offsetForNewerChunk = position - takeCount
-        const newerMessages = await fetchMessages(config.id, takeCount, offsetForNewerChunk, CHUNK_SIZE)
+        const newerMessages = await fetchMessages(config.discord.id, takeCount, offsetForNewerChunk, CHUNK_SIZE)
 
         if (newerMessages.length === 0) {
             return
@@ -147,7 +147,7 @@ if (client.isReady()) {
 }
 
 client.on("messageCreate", async (message) => {
-    if (message.channelId === config.id) {
+    if (message.channelId === config.discord.id) {
         if (chat.some((m) => m.id === message.id)) {
             return
         }
@@ -169,7 +169,7 @@ client.on("messageCreate", async (message) => {
 })
 
 client.on("messageDelete", async (message) => {
-    if (message.channelId === config.id) {
+    if (message.channelId === config.discord.id) {
         const index = chat.findIndex((m) => m.id === message.id)
         if (index !== -1) {
             chat.splice(index, 1)
