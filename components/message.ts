@@ -34,7 +34,7 @@ export async function makeMessage(message: Message) {
   
       const replyColour = getColour(
         repliedTo.member ?? undefined,
-        Theme.text.toString()
+        Theme.text
       );
   
       const replyUser = new TextRenderable(renderer, {
@@ -70,7 +70,7 @@ export async function makeMessage(message: Message) {
 
   const colour = getColour(
     message.member ?? undefined,
-    Theme.text.toString()
+    Theme.text
   );
 
   const userText = new TextRenderable(renderer, {

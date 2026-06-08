@@ -131,7 +131,7 @@ main.add(contentArea)
 if (client.isReady()) {
     await initializeChat()
 } else {
-    client.once("ready", async () => {
+    client.once("clientReady", async () => {
         await initializeChat()
     })
 }
@@ -140,7 +140,7 @@ if (client.isReady()) {
     const guilds = getGuilds();
     await initGuildSelector(guilds);
 } else {
-    client.once("ready", async () => {
+    client.once("clientReady", async () => {
         const guilds = getGuilds();
         await initGuildSelector(guilds);
     })

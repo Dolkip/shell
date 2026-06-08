@@ -23,26 +23,17 @@ export const guildsMenu = new BoxRenderable(renderer, {
 const guildNameBox = new BoxRenderable(renderer, {
     id: "guild-name-box",
     width: "100%",
-    height: 2,
-    flexShrink: 0,
     backgroundColor: Theme.selectionBackground,
 })
 
 const guildNameText = new TextRenderable(renderer, {
     id: "guild-name",
-    content: "Select guild",
+    content: "guild",
     fg: Theme.accent,
     attributes: TextAttributes.BOLD,
 })
 
-const guildIdText = new TextRenderable(renderer, {
-    id: "guild-id",
-    content: "",
-    fg: Theme.selectionDescription,
-})
-
 guildNameBox.add(guildNameText)
-guildNameBox.add(guildIdText)
 guildsMenu.add(guildNameBox)
 
 async function loadGuildChannels(guildId: string) {
@@ -51,7 +42,6 @@ async function loadGuildChannels(guildId: string) {
 
     const guild = await fetchGuild(guildId);
     guildNameText.content = guild.name.slice(0, 32) || "Unknown";
-    guildIdText.content = guild.id;
 
     const channels = await getGuildChannels(guild);
 
@@ -81,7 +71,7 @@ async function loadGuildChannels(guildId: string) {
         backgroundColor: Theme.selectionBackground,
         selectedBackgroundColor: Theme.accent,
         selectedTextColor: Theme.text,
-        descriptionColor: Theme.selectionDescription,
+        showDescription: false,
     });
 
     channelSelect.on(SelectRenderableEvents.ITEM_SELECTED, (index: number, option: any) => {
