@@ -110,6 +110,7 @@ export async function loadTheme(): Promise<void> {
     const sel = isPlainObject(raw.select) ? raw.select : {}
     const pnl = isPlainObject(raw.panel) ? raw.panel : {}
     const scl = isPlainObject(raw.scrollbar) ? raw.scrollbar : {}
+    const md = isPlainObject(raw.markdown) ? raw.markdown : {}
 
     const background = parseColor(raw.background ?? "#000000", "background")
     const text = parseColor(raw.text ?? "#ffffff", "text")
@@ -158,6 +159,18 @@ export async function loadTheme(): Promise<void> {
         scrollbar: {
             track: parseOptionalColor(scl.track, "scrollbar.track") ?? dim,
             thumb: parseOptionalColor(scl.thumb, "scrollbar.thumb") ?? accent,
+        },
+        markdown: {
+            heading: parseOptionalColor(md.heading, "markdown.heading") ?? RGBA.fromHex("#58A6FF"),
+            heading1: parseOptionalColor(md.heading1, "markdown.heading1") ?? RGBA.fromHex("#58A6FF"),
+            heading2: parseOptionalColor(md.heading2, "markdown.heading2") ?? RGBA.fromHex("#58A6FF"),
+            heading3: parseOptionalColor(md.heading3, "markdown.heading3") ?? RGBA.fromHex("#58A6FF"),
+            code: parseOptionalColor(md.code, "markdown.code") ?? RGBA.fromHex("#A5D6FF"),
+            codeBlock: parseOptionalColor(md.codeBlock, "markdown.codeBlock") ?? RGBA.fromHex("#A5D6FF"),
+            link: parseOptionalColor(md.link, "markdown.link") ?? RGBA.fromHex("#58A6FF"),
+            list: parseOptionalColor(md.list, "markdown.list") ?? RGBA.fromHex("#FF7B72"),
+            quote: parseOptionalColor(md.quote, "markdown.quote") ?? dim,
+            conceal: parseOptionalColor(md.conceal, "markdown.conceal") ?? dim,
         },
     }
 }

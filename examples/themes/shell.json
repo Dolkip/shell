@@ -34,5 +34,17 @@
     "scrollbar": {
         "track": "#333333",
         "thumb": "#5865F2"
+    },
+    "markdown": {
+        "heading": "#58A6FF",
+        "heading1": "#58A6FF",
+        "heading2": "#58A6FF",
+        "heading3": "#58A6FF",
+        "code": "#A5D6FF",
+        "codeBlock": "#A5D6FF",
+        "link": "#58A6FF",
+        "list": "#FF7B72",
+        "quote": "#888888",
+        "conceal": "#888888"
     }
 }

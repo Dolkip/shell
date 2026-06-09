@@ -5,21 +5,21 @@ import { Message, GuildMember } from "discord.js";
 import { getColour } from "../discord"
 
 const syntaxStyle = SyntaxStyle.fromStyles({
-  "markup.heading": { fg: Theme.accent, bold: true },
-  "markup.heading.1": { fg: RGBA.fromHex("#58A6FF"), bold: true },
-  "markup.heading.2": { fg: RGBA.fromHex("#58A6FF") },
-  "markup.heading.3": { fg: RGBA.fromHex("#58A6FF") },
+  "markup.heading": { fg: Theme.markdown.heading, bold: true },
+  "markup.heading.1": { fg: Theme.markdown.heading1, bold: true },
+  "markup.heading.2": { fg: Theme.markdown.heading2 },
+  "markup.heading.3": { fg: Theme.markdown.heading3 },
   "markup.strong": { bold: true },
   "markup.italic": { italic: true },
   "markup.strikethrough": { fg: Theme.dim },
-  "markup.raw": { fg: RGBA.fromHex("#A5D6FF") },
-  "markup.raw.block": { fg: RGBA.fromHex("#A5D6FF") },
-  "markup.link": { fg: RGBA.fromHex("#58A6FF"), underline: true },
-  "markup.link.url": { fg: RGBA.fromHex("#58A6FF"), underline: true },
-  "markup.link.label": { fg: RGBA.fromHex("#58A6FF") },
-  "markup.list": { fg: RGBA.fromHex("#FF7B72") },
-  "markup.quote": { fg: Theme.dim, italic: true },
-  conceal: { fg: Theme.dim },
+  "markup.raw": { fg: Theme.markdown.code },
+  "markup.raw.block": { fg: Theme.markdown.codeBlock },
+  "markup.link": { fg: Theme.markdown.link, underline: true },
+  "markup.link.url": { fg: Theme.markdown.link, underline: true },
+  "markup.link.label": { fg: Theme.markdown.link },
+  "markup.list": { fg: Theme.markdown.list },
+  "markup.quote": { fg: Theme.markdown.quote, italic: true },
+  conceal: { fg: Theme.markdown.conceal },
   default: { fg: Theme.text },
 })
 
