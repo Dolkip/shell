@@ -1,43 +1,34 @@
-import js from '@eslint/js';
-import { defineConfig } from 'eslint/config';
-import tsPlugin from '@typescript-eslint/eslint-plugin';
-import tsParser from '@typescript-eslint/parser';
+import tseslint from 'typescript-eslint';
 
-export default defineConfig([
-  js.configs.recommended,
-  {
-    // Provide common global names used in this project (Node / Bun / runtime)
-    languageOptions: {
-      globals: {
-        process: 'readonly',
-        console: 'readonly',
-        Bun: 'readonly',
-      },
+export default tseslint.config({
+  files: ['*.ts', '*.tsx'],
+  languageOptions: {
+    globals: {
+      process: 'readonly',
+      console: 'readonly',
+      Bun: 'readonly',
+    },
+    parser: tseslint.parser,
+    parserOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      project: './tsconfig.json',
     },
   },
-  {
-    files: ['*.ts', '*.tsx'],
-    languageOptions: {
-      parser: tsParser,
-      parserOptions: {
-        ecmaVersion: 'latest',
-        sourceType: 'module',
-        project: './tsconfig.json',
-      },
-    },
-    plugins: { '@typescript-eslint': tsPlugin },
-    rules: {
-      'no-unused-vars': 'off',
-      '@typescript-eslint/no-unused-vars': [
-        'error',
-        {
-          vars: 'all',
-          args: 'after-used',
-          ignoreRestSiblings: true,
-          varsIgnorePattern: '^_',
-          argsIgnorePattern: '^_',
-        },
-      ],
-    },
+  plugins: {
+    '@typescript-eslint': tseslint.plugin,
   },
-]);
+  rules: {
+    'no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      {
+        vars: 'all',
+        args: 'after-used',
+        ignoreRestSiblings: true,
+        varsIgnorePattern: '^_',
+        argsIgnorePattern: '^_',
+      },
+    ],
+  },
+});

@@ -15,7 +15,6 @@ export const renderer = await createCliRenderer({
 })
 
 renderer.keyInput.on("keypress", (key) => {
-  // Toggle with backtick key
   if (key.name === "`") {
     renderer.console.toggle()
   }

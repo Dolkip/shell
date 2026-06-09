@@ -1,6 +1,6 @@
 import { client } from "./discord"
 import kleur from "kleur"
-import { ensureDirectories, loadConfig, loadState, config } from "./config"
+import { ensureDirectories, loadConfig, config } from "./config"
 import { loadTheme } from "./theme"
 
 function shutdown() {
@@ -18,7 +18,6 @@ async function main() {
 
   await ensureDirectories()
   await loadConfig()
-  await loadState()
 
   const token = process.env.DISCORD_TOKEN ?? config.discord.token
   if (!token) {
@@ -34,12 +33,6 @@ async function main() {
     shutdown()
     return
   }
-
-  /*
-  client.on("raw", (packet: any) => {
-    console.log("gateway:", packet.t, JSON.stringify(packet.d))
-  })
-  */
 
   await new Promise<void>((resolve) => {
     client.once("clientReady", () => resolve())

@@ -1,12 +1,7 @@
 import { Message } from "discord.js"
-
 import { client } from "./client"
 import { fetchChannel } from "./guilds"
 
-
-/*
-  bananana insanana
-*/
 export async function fetchMessages(
   channelId: string,
   limit = 50,
@@ -67,22 +62,11 @@ export async function fetchMessages(
   return fetchedMessages.reverse()
 }
 
-/*
-export async function fetchPinnedMessages(channelId: string): Promise<Message[]> {
-  const channel = await fetchChannel(channelId)
-  return channel.messages.fetchPins().then(messages => [...messages.items]).catch(console.error);
-}
-*/
-
-/* 
-  sends a message! wow! 
-*/
 export async function sendMessage(channelId: string, message: string) {
   const channel = await client.channels.fetch(channelId)
 
   if (!channel || !("send" in channel)) {
-    throw new Error("cand sent message somehow")
-    // this only exists to shut up typescript because it keeps complaining that channel might not have .send()
+    throw new Error("cannot send message")
   }
 
   await channel.send(message)

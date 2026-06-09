@@ -6,9 +6,9 @@ import { chatBox } from "./chat"
 import { fetchMessages, client } from "../discord"
 import { makeMessage } from "./message"
 import { getGuilds } from "../discord"
-import { guildsMenu, initGuildSelector, setupGuildKeyHandler, setGuildSelectorFocused } from "./guildmenu"
-import { config } from "../config"
-import { Message } from "discord.js"
+import { guildsMenu, initGuildSelector, setupGuildKeyHandler, setGuildSelectorFocused, setOnChannelSelect, syncChannelSelection } from "./guildmenu"
+import { config, currentChannelId, setCurrentChannelId } from "../config"
+import { Message, Guild } from "discord.js"
 
 export const main = new BoxRenderable(renderer, {
     id: "main",
@@ -36,31 +36,63 @@ let isHistoryLoading = false
 
 let chat: BoxRenderable[] = []
 
+setCurrentChannelId(config.discord.id)
+
 async function renderMessages(messages: Message[]) {
     return Promise.all(messages.map((message) => makeMessage(message)))
 }
 
-function rerenderChat() {
+function clearChatBox() {
     for (const child of chatBox.getChildren()) {
         chatBox.remove(child.id)
     }
+}
+
+function rerenderChat() {
+    clearChatBox()
 
     for (const child of chat) {
         chatBox.add(child)
     }
 }
 
-async function initializeChat() {
-    const channel = await client.channels.fetch(config.discord.id)
-    const guild = channel.guild
-    if (guild) {
-        await guild.members.fetch()
+async function fetchAndRenderMessages(channelId: string) {
+    const channel = await client.channels.fetch(channelId)
+    if (!channel || !channel.isTextBased()) return
+
+    const messages = await fetchMessages(channelId, WINDOW_SIZE, 0, CHUNK_SIZE)
+
+    if ("guild" in channel && channel.guild) {
+        const authorIds = [...new Set(messages.map(m => m.author.id))]
+        await Promise.allSettled(
+            authorIds.map(id => channel.guild.members.fetch({ user: id }))
+        )
     }
-    const messages = await fetchMessages(config.discord.id, WINDOW_SIZE, 0, CHUNK_SIZE)
+
     chat = await renderMessages(messages)
     position = 0
-    rerenderChat() 
+
+    clearChatBox()
+    for (const child of chat) {
+        chatBox.add(child)
+    }
     chatBox.scrollTo(chatBox.scrollHeight)
+}
+
+export async function switchChannel(channelId: string) {
+    if (channelId === currentChannelId) return;
+
+    setCurrentChannelId(channelId);
+
+    await fetchAndRenderMessages(channelId);
+
+    syncChannelSelection(channelId);
+
+    textArea.setText("");
+}
+
+async function initializeChat() {
+    await fetchAndRenderMessages(currentChannelId)
 }
 
 async function loadOlderChunk() {
@@ -72,7 +104,7 @@ async function loadOlderChunk() {
 
     try {
         const offsetForOlderChunk = position + chat.length
-        const olderMessages = await fetchMessages(config.discord.id, CHUNK_SIZE, offsetForOlderChunk, CHUNK_SIZE)
+        const olderMessages = await fetchMessages(currentChannelId, CHUNK_SIZE, offsetForOlderChunk, CHUNK_SIZE)
 
         if (olderMessages.length === 0) {
             return
@@ -102,7 +134,7 @@ async function loadNewerChunk() {
     try {
         const takeCount = Math.min(CHUNK_SIZE, position)
         const offsetForNewerChunk = position - takeCount
-        const newerMessages = await fetchMessages(config.discord.id, takeCount, offsetForNewerChunk, CHUNK_SIZE)
+        const newerMessages = await fetchMessages(currentChannelId, takeCount, offsetForNewerChunk, CHUNK_SIZE)
 
         if (newerMessages.length === 0) {
             return
@@ -141,18 +173,42 @@ if (client.isReady()) {
     })
 }
 
+async function findGuildByName(name: string): Promise<string | undefined> {
+    const guilds = client.guilds.cache;
+    const found = guilds.find((g: Guild) => g.name === name);
+    return found?.id;
+}
+
+async function initGuildSelectorForBrook4() {
+    const guildIds = getGuilds();
+
+    const configGuild = config.discord.guild;
+    let targetId: string | undefined;
+
+    if (configGuild && guildIds.includes(configGuild)) {
+        targetId = configGuild;
+    } else {
+        targetId = await findGuildByName("Brook 4");
+    }
+
+    await initGuildSelector(guildIds, targetId);
+    syncChannelSelection(currentChannelId);
+}
+
+setOnChannelSelect((channelId: string) => {
+    void switchChannel(channelId);
+});
+
 if (client.isReady()) {
-    const guilds = getGuilds();
-    await initGuildSelector(guilds);
+    await initGuildSelectorForBrook4();
 } else {
     client.once("clientReady", async () => {
-        const guilds = getGuilds();
-        await initGuildSelector(guilds);
+        await initGuildSelectorForBrook4();
     })
 }
 
 client.on("messageCreate", async (message) => {
-    if (message.channelId === config.discord.id) {
+    if (message.channelId === currentChannelId) {
         if (chat.some((m) => m.id === message.id)) {
             return
         }
@@ -174,7 +230,7 @@ client.on("messageCreate", async (message) => {
 })
 
 client.on("messageDelete", async (message) => {
-    if (message.channelId === config.discord.id) {
+    if (message.channelId === currentChannelId) {
         const index = chat.findIndex((m) => m.id === message.id)
         if (index !== -1) {
             chat.splice(index, 1)
@@ -216,4 +272,3 @@ renderer.keyInput.on("keypress", (key: any) => {
         void loadNewerChunk();
     }
 });
-

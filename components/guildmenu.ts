@@ -6,7 +6,12 @@ import { Theme } from "../theme";
 let channelSelect: SelectRenderable | null = null;
 let currentGuildId: string | null = null;
 let guildIds: string[] = [];
-let guildSelectorFocused = false;
+
+export let onChannelSelect: ((channelId: string) => void) | null = null;
+
+export function setOnChannelSelect(handler: (channelId: string) => void) {
+    onChannelSelect = handler;
+}
 
 export const guildsMenu = new BoxRenderable(renderer, {
     id: "guilds-menu",
@@ -56,7 +61,6 @@ async function loadGuildChannels(guildId: string) {
     }
 
     if (channelArray.length === 0) {
-        channelSelect = null;
         return;
     }
 
@@ -76,57 +80,52 @@ async function loadGuildChannels(guildId: string) {
     });
 
     channelSelect.on(SelectRenderableEvents.ITEM_SELECTED, (index: number, option: any) => {
-        console.log("chosen channel:", option.value);
+        if (onChannelSelect) {
+            onChannelSelect(option.value);
+        }
     });
 
     guildsMenu.add(channelSelect);
 }
 
-export async function initGuildSelector(guildIdsList: string[]) {
-    guildIds = guildIdsList;
-
-    if (guildIds.length > 0) {
-        await loadGuildChannels(guildIds[0]!);
+export function syncChannelSelection(channelId: string) {
+    if (!channelSelect) return;
+    const options = channelSelect.options;
+    const idx = options.findIndex((o: any) => o.value === channelId);
+    if (idx >= 0) {
+        channelSelect.setSelectedIndex(idx);
     }
 }
 
-let channelSelectFocused = false;
+export async function initGuildSelector(guildIdsList: string[], targetGuildId?: string) {
+    guildIds = guildIdsList;
+
+    if (guildIds.length > 0) {
+        const guildId = targetGuildId && guildIdsList.includes(targetGuildId)
+            ? targetGuildId
+            : guildIds[0]!;
+        await loadGuildChannels(guildId);
+    }
+}
 
 export function setupGuildKeyHandler() {
     renderer.keyInput.on("keypress", (key: KeyEvent) => {
-        if (!guildSelectorFocused) return;
+        if (!channelSelect) return;
 
         if (key.ctrl && key.name === "tab") {
-            guildSelectorFocused = false;
-            channelSelectFocused = false;
-            channelSelect?.blur();
+            channelSelect.blur();
             return;
-        }
-
-        if (key.name === "left") {
-            const currentIndex = guildIds.indexOf(currentGuildId ?? "");
-            if (currentIndex > 0) {
-                loadGuildChannels(guildIds[currentIndex - 1]!);
-            }
-        } else if (key.name === "right") {
-            const currentIndex = guildIds.indexOf(currentGuildId ?? "");
-            if (currentIndex < guildIds.length - 1) {
-                loadGuildChannels(guildIds[currentIndex + 1]!);
-            }
-        } else if (key.name === "up" || key.name === "down") {
-            channelSelect?.focus();
-            channelSelectFocused = true;
+        } 
+        if (key.name === "up" || key.name === "down") {
+            channelSelect.focus();
         }
     });
 }
 
 export function setGuildSelectorFocused(focused: boolean) {
-    guildSelectorFocused = focused;
     if (focused) {
         channelSelect?.focus();
-        channelSelectFocused = true;
     } else {
         channelSelect?.blur();
-        channelSelectFocused = false;
     }
 }

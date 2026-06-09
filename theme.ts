@@ -1,7 +1,7 @@
 import { join } from "node:path"
 import { Glob, JSON5 } from "bun"
 import { RGBA } from "@opentui/core"
-import { config, SHELLDIR } from "./config"
+import { config, SHELLDIR, isPlainObject, isString } from "./config"
 
 export interface Theme {
     meta: {
@@ -62,14 +62,6 @@ export interface Theme {
 
 const THEMES_DIR = join(SHELLDIR, "themes")
 const themes = new Glob("*.json")
-
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-    return typeof value === "object" && value !== null && !Array.isArray(value)
-}
-
-function isString(value: unknown): value is string {
-    return typeof value === "string"
-}
 
 function parseColor(value: unknown, path: string): RGBA {
     if (!isString(value)) {

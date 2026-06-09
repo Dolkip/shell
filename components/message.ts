@@ -1,7 +1,7 @@
-import { TextRenderable, BoxRenderable, MarkdownRenderable, SyntaxStyle, RGBA } from "@opentui/core";
+import { TextRenderable, BoxRenderable, MarkdownRenderable, SyntaxStyle } from "@opentui/core";
 import { renderer } from "../renderer";
 import { Theme } from "../theme";
-import { Message, GuildMember } from "discord.js";
+import { Message } from "discord.js";
 import { getColour } from "../discord"
 
 const syntaxStyle = SyntaxStyle.fromStyles({
@@ -38,7 +38,6 @@ export async function makeMessage(message: Message) {
     }
   });
 
-  // the reply! wowow
   if (message.reference?.messageId) {
     let repliedTo = null;
   
@@ -91,7 +90,6 @@ export async function makeMessage(message: Message) {
     }
   }
 
-  // the the the
   const messageRow = new BoxRenderable(renderer, {
     flexDirection: "row",
     width: "100%",

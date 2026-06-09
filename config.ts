@@ -6,7 +6,6 @@ import { mkdir, access, readdir, copyFile } from "node:fs/promises"
 export const SHELLDIR = join(homedir(), ".shell")
 const THEMES_DIR = join(SHELLDIR, "themes")
 const EXAMPLES = join(import.meta.dir, "examples")
-export const STATE_PATH = join(SHELLDIR, "state.json")
 
 export interface Config {
     theme: string
@@ -14,31 +13,28 @@ export interface Config {
     discord: {
         token: string
         id: string
+        guild: string
     }
-}
-
-export interface State {
-    theme?: string
-    lastChannel?: string
 }
 
 export let config: Config = {
     theme: "shell",
     chunkSize: 50,
-    discord: { token: "", id: "" },
+    discord: { token: "", id: "", guild: "" },
 }
-export let state: State = {}
 
-function isPlainObject(v: unknown): v is Record<string, unknown> {
+export let currentChannelId = ""
+
+export function setCurrentChannelId(id: string) {
+    currentChannelId = id
+}
+
+export function isPlainObject(v: unknown): v is Record<string, unknown> {
     return typeof v === "object" && v !== null && !Array.isArray(v)
 }
 
-function isString(v: unknown): v is string {
+export function isString(v: unknown): v is string {
     return typeof v === "string"
-}
-
-function isNumber(v: unknown): v is number {
-    return typeof v === "number"
 }
 
 async function fileExists(p: string): Promise<boolean> {
@@ -73,25 +69,13 @@ export async function loadConfig(): Promise<void> {
 
     if (!isPlainObject(raw)) throw new Error("config.toml must be a table")
     if (!isString(raw.theme)) throw new Error(`config.toml: theme (${typeof raw.theme}) must be a string`)
-    if (!isNumber(raw.chunkSize)) throw new Error(`config.toml: chunkSize (${typeof raw.chunkSize}) must be a number`)
+    if (typeof raw.chunkSize !== "number") throw new Error(`config.toml: chunkSize (${typeof raw.chunkSize}) must be a number`)
 
     const discord = raw.discord
     if (!isPlainObject(discord)) throw new Error("config.toml: [discord] section required")
-    if (!isString(discord.token)) throw new Error(`config.toml: discord.token (${typeof discord.token}) must be a string — make sure it is wrapped in double quotes`)
+    if (!isString(discord.token)) throw new Error(`config.toml: discord.token (${typeof discord.token}) must be a string`)
     if (!isString(discord.id)) throw new Error(`config.toml: discord.id (${typeof discord.id}) must be a string`)
+    if (!isString(discord.guild)) throw new Error(`config.toml: discord.guild (${typeof discord.guild}) must be a string`)
 
     config = raw as unknown as Config
-}
-
-export async function loadState(): Promise<void> {
-    try {
-        const raw = await Bun.file(STATE_PATH).json()
-        state = isPlainObject(raw) ? raw as State : {}
-    } catch {
-        state = {}
-    }
-}
-
-export async function saveState(): Promise<void> {
-    await Bun.write(STATE_PATH, JSON.stringify(state, null, 2))
 }

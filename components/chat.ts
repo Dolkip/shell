@@ -1,4 +1,4 @@
-import { BoxRenderable, ScrollBoxRenderable } from "@opentui/core";
+import { ScrollBoxRenderable } from "@opentui/core";
 import { renderer } from "../renderer";
 import { Theme } from "../theme"
 
@@ -18,14 +18,3 @@ export const chatBox = new ScrollBoxRenderable(renderer, {
         },
     },
 })
-
-export function chatScrollPosition() {
-    const maxY = Math.max(0, chatBox.scrollHeight - (chatBox.height ?? 0))
-
-    if (maxY === 0) {
-        return 0
-    }
-
-    const normalized = chatBox.scrollTop / maxY
-    return Math.max(0, Math.min(1, normalized))
-}
