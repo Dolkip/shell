@@ -29,6 +29,8 @@ export const search = new InputRenderable(renderer, {
     width: 20,
     backgroundColor: Theme.input.base,
     focusedBackgroundColor: Theme.input.focused,
+    textColor: Theme.input.text,
+    cursorColor: Theme.input.cursor,
     marginLeft: "auto",
 })
 

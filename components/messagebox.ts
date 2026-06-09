@@ -14,7 +14,11 @@ export const textArea = new TextareaRenderable(renderer, {
     backgroundColor: Theme.input.base,
     focusedBackgroundColor: Theme.input.focused,
     textColor: Theme.input.text,
+    focusedTextColor: Theme.input.focusedText,
     cursorColor: Theme.input.cursor,
+    placeholderColor: Theme.input.placeholder,
+    selectionBg: Theme.input.selectionBg,
+    selectionFg: Theme.input.selectionFg,
     placeholder: "Type here. Ctrl+S to send.",
     onSubmit: () => {
       if (textArea.plainText.length === 0) {

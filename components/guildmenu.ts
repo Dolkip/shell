@@ -66,8 +66,12 @@ async function loadGuildChannels(guildId: string) {
         flexGrow: 1,
         textColor: Theme.select.text,
         backgroundColor: Theme.select.base,
+        focusedBackgroundColor: Theme.select.focused,
+        focusedTextColor: Theme.select.focusedText,
         selectedBackgroundColor: Theme.select.selected,
         selectedTextColor: Theme.select.selectedText,
+        descriptionColor: Theme.select.description,
+        selectedDescriptionColor: Theme.select.selectedDescription,
         showDescription: false,
     });
 

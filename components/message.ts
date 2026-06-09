@@ -97,7 +97,7 @@ export async function makeMessage(message: Message) {
 
   const messageText = new MarkdownRenderable(renderer, {
     content: message.content,
-    fg: Theme.text,
+    fg: Theme.message.text,
   });
 
   messageRow.add(userText);
