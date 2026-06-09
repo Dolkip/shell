@@ -1,22 +1,33 @@
-import { TextRenderable, BoxRenderable, TextAttributes, MarkdownRenderable } from "@opentui/core";
+import { TextRenderable, BoxRenderable, MarkdownRenderable, SyntaxStyle, RGBA } from "@opentui/core";
 import { renderer } from "../renderer";
 import { Theme } from "../theme";
 import { Message, GuildMember } from "discord.js";
 import { getColour } from "../discord"
 
-/*
 const syntaxStyle = SyntaxStyle.fromStyles({
+  "markup.heading": { fg: Theme.accent, bold: true },
   "markup.heading.1": { fg: RGBA.fromHex("#58A6FF"), bold: true },
-  "markup.list": { fg: RGBA.fromHex("#FF7B72") },
+  "markup.heading.2": { fg: RGBA.fromHex("#58A6FF") },
+  "markup.heading.3": { fg: RGBA.fromHex("#58A6FF") },
+  "markup.strong": { bold: true },
+  "markup.italic": { italic: true },
+  "markup.strikethrough": { fg: Theme.dim },
   "markup.raw": { fg: RGBA.fromHex("#A5D6FF") },
-  default: { fg: RGBA.fromHex("#E6EDF3") },
+  "markup.raw.block": { fg: RGBA.fromHex("#A5D6FF") },
+  "markup.link": { fg: RGBA.fromHex("#58A6FF"), underline: true },
+  "markup.link.url": { fg: RGBA.fromHex("#58A6FF"), underline: true },
+  "markup.link.label": { fg: RGBA.fromHex("#58A6FF") },
+  "markup.list": { fg: RGBA.fromHex("#FF7B72") },
+  "markup.quote": { fg: Theme.dim, italic: true },
+  conceal: { fg: Theme.dim },
+  default: { fg: Theme.text },
 })
-  */
 
 export async function makeMessage(message: Message) {
   const container = new BoxRenderable(renderer, {
     id: message.id,
     flexDirection: "column",
+    width: "100%",
     backgroundColor: Theme.message.base,
     marginBottom: 0,
     onMouseOver: () => {
@@ -62,6 +73,7 @@ export async function makeMessage(message: Message) {
       const replyText = new MarkdownRenderable(renderer, {
         fg: Theme.dim,
         content: repliedTo.content || "[attachment]",
+        syntaxStyle,
       });
   
       reply.add(replyChar);
@@ -82,6 +94,7 @@ export async function makeMessage(message: Message) {
   // the the the
   const messageRow = new BoxRenderable(renderer, {
     flexDirection: "row",
+    width: "100%",
   });
 
   const colour = getColour(
@@ -95,13 +108,22 @@ export async function makeMessage(message: Message) {
     flexShrink: 0,
   });
 
+  const contentBox = new BoxRenderable(renderer, {
+    flexGrow: 1,
+    flexDirection: "column",
+    width: "100%",
+  });
+
   const messageText = new MarkdownRenderable(renderer, {
     content: message.content,
     fg: Theme.message.text,
+    syntaxStyle,
+    width: "100%",
   });
 
+  contentBox.add(messageText)
   messageRow.add(userText);
-  messageRow.add(messageText);
+  messageRow.add(contentBox);
 
   container.add(messageRow);
 

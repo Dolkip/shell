@@ -46,6 +46,18 @@ export interface Theme {
         track: RGBA
         thumb: RGBA
     }
+    markdown: {
+        heading: RGBA
+        heading1: RGBA
+        heading2: RGBA
+        heading3: RGBA
+        code: RGBA
+        codeBlock: RGBA
+        link: RGBA
+        list: RGBA
+        quote: RGBA
+        conceal: RGBA
+    }
 }
 
 const THEMES_DIR = join(SHELLDIR, "themes")
