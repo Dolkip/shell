@@ -15,15 +15,12 @@ export const guildsMenu = new BoxRenderable(renderer, {
     flexGrow: 1,
     flexShrink: 1,
     minHeight: 0,
-    border: true,
-    borderStyle: "rounded",
-    borderColor: Theme.border,
 })
 
 const guildNameBox = new BoxRenderable(renderer, {
     id: "guild-name-box",
     width: "100%",
-    backgroundColor: Theme.selectionBackground,
+    backgroundColor: Theme.panel.base,
 })
 
 const guildNameText = new TextRenderable(renderer, {
@@ -41,14 +38,14 @@ async function loadGuildChannels(guildId: string) {
     currentGuildId = guildId;
 
     const guild = await fetchGuild(guildId);
-    guildNameText.content = guild.name.slice(0, 32) || "Unknown";
+    guildNameText.content = guild.name || "Unknown";
 
     const channels = await getGuildChannels(guild);
 
     const channelArray = channels
         .filter(ch => ch.isTextBased())
         .map(ch => ({
-            name: "#" + (ch.name ?? ch.id).slice(0, 16),
+            name: "#" + ch.name,
             description: ch.id,
             value: ch.id
         }));
@@ -67,10 +64,10 @@ async function loadGuildChannels(guildId: string) {
         options: channelArray,
         width: "100%",
         flexGrow: 1,
-        textColor: Theme.selectionText,
-        backgroundColor: Theme.selectionBackground,
-        selectedBackgroundColor: Theme.accent,
-        selectedTextColor: Theme.text,
+        textColor: Theme.select.text,
+        backgroundColor: Theme.select.base,
+        selectedBackgroundColor: Theme.select.selected,
+        selectedTextColor: Theme.select.selectedText,
         showDescription: false,
     });
 

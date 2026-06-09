@@ -1,4 +1,4 @@
-import { BoxRenderable, TextRenderable, TextAttributes } from "@opentui/core"
+import { BoxRenderable, TextRenderable, InputRenderable } from "@opentui/core"
 import { Theme } from "../theme"
 import { renderer } from "../renderer"
 
@@ -23,5 +23,15 @@ export const bannerText = new TextRenderable(renderer, {
     fg: Theme.dim,
 })
 
+export const search = new InputRenderable(renderer, {
+    id: "search",
+    placeholder: '🔍\uFE0E' + "Search...",
+    width: 20,
+    backgroundColor: Theme.input.base,
+    focusedBackgroundColor: Theme.input.focused,
+    marginLeft: "auto",
+})
+
 banner.add(bannerTitle)
 banner.add(bannerText)
+banner.add(search)

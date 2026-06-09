@@ -21,4 +21,3 @@ renderer.keyInput.on("keypress", (key) => {
   }
 })
 
-console.log("hey");

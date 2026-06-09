@@ -11,10 +11,10 @@ export const textArea = new TextareaRenderable(renderer, {
     minHeight: 1,
     maxHeight: 5,
   
-    backgroundColor: Theme.inputBackground,
-    focusedBackgroundColor: Theme.inputFocusedBackground,
-    textColor: Theme.inputText,
-    cursorColor: Theme.inputCursor,
+    backgroundColor: Theme.input.base,
+    focusedBackgroundColor: Theme.input.focused,
+    textColor: Theme.input.text,
+    cursorColor: Theme.input.cursor,
     placeholder: "Type here. Ctrl+S to send.",
     onSubmit: () => {
       if (textArea.plainText.length === 0) {
@@ -34,9 +34,11 @@ export const messageBox = new BoxRenderable(renderer, {
     flexShrink: 0,
     marginTop: "auto",
     flexDirection: "column",
+    /*
     border: true,
     borderStyle: "rounded",
     borderColor: Theme.border,
+    */
 })
 
 //puts the thing in the box

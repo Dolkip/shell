@@ -1,14 +1,30 @@
-import { TextRenderable, BoxRenderable, TextAttributes } from "@opentui/core";
+import { TextRenderable, BoxRenderable, TextAttributes, MarkdownRenderable } from "@opentui/core";
 import { renderer } from "../renderer";
 import { Theme } from "../theme";
 import { Message, GuildMember } from "discord.js";
 import { getColour } from "../discord"
 
+/*
+const syntaxStyle = SyntaxStyle.fromStyles({
+  "markup.heading.1": { fg: RGBA.fromHex("#58A6FF"), bold: true },
+  "markup.list": { fg: RGBA.fromHex("#FF7B72") },
+  "markup.raw": { fg: RGBA.fromHex("#A5D6FF") },
+  default: { fg: RGBA.fromHex("#E6EDF3") },
+})
+  */
+
 export async function makeMessage(message: Message) {
   const container = new BoxRenderable(renderer, {
     id: message.id,
     flexDirection: "column",
+    backgroundColor: Theme.message.base,
     marginBottom: 0,
+    onMouseOver: () => {
+      container.backgroundColor = Theme.message.hover
+    },
+    onMouseOut: () => {
+      container.backgroundColor = Theme.message.base
+    }
   });
 
   // the reply! wowow
@@ -43,7 +59,7 @@ export async function makeMessage(message: Message) {
         flexShrink: 0,
       });
   
-      const replyText = new TextRenderable(renderer, {
+      const replyText = new MarkdownRenderable(renderer, {
         fg: Theme.dim,
         content: repliedTo.content || "[attachment]",
       });
@@ -79,7 +95,7 @@ export async function makeMessage(message: Message) {
     flexShrink: 0,
   });
 
-  const messageText = new TextRenderable(renderer, {
+  const messageText = new MarkdownRenderable(renderer, {
     content: message.content,
     fg: Theme.text,
   });

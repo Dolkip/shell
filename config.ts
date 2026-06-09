@@ -1,10 +1,11 @@
 import { join } from "node:path"
 import { homedir } from "node:os"
 import { Glob } from "bun"
-import { mkdir, access } from "node:fs/promises"
+import { mkdir, access, readdir, copyFile } from "node:fs/promises"
 
 export const SHELLDIR = join(homedir(), ".shell")
 const THEMES_DIR = join(SHELLDIR, "themes")
+const EXAMPLES = join(import.meta.dir, "examples")
 export const STATE_PATH = join(SHELLDIR, "state.json")
 
 export interface Config {
@@ -40,31 +41,6 @@ function isNumber(v: unknown): v is number {
     return typeof v === "number"
 }
 
-const DEFAULT_CONFIG_TOML = `theme = "shell"
-chunkSize = 50
-
-[discord]
-token = ""
-id = ""
-`
-
-const SHELL_JSON = JSON.stringify({
-    background: "#000000",
-    accent: "#5865F2",
-    text: "#FFFFFF",
-    mutedText: "#888888",
-    border: "#FFFFFF",
-    panelBackground: "#111111",
-    panelBackgroundAlt: "#1a1a1a",
-    inputBackground: "#1a1a1a",
-    inputFocusedBackground: "#444444",
-    inputText: "#FFFFFF",
-    inputCursor: "#5865F2",
-    selectionBackground: "#1a1a1a",
-    selectionText: "#FFFFFF",
-    selectionDescription: "#AAAAAA"
-}, null, 4)
-
 async function fileExists(p: string): Promise<boolean> {
     try {
         await access(p)
@@ -79,12 +55,15 @@ export async function ensureDirectories(): Promise<void> {
     await mkdir(THEMES_DIR, { recursive: true })
 
     if (!(await fileExists(join(SHELLDIR, "config.toml")))) {
-        await Bun.write(join(SHELLDIR, "config.toml"), DEFAULT_CONFIG_TOML)
+        await copyFile(join(EXAMPLES, "config.toml"), join(SHELLDIR, "config.toml"))
     }
 
     const themes = Array.from(new Glob("*.json").scanSync(THEMES_DIR))
     if (themes.length === 0) {
-        await Bun.write(join(THEMES_DIR, "shell.json"), SHELL_JSON)
+        const themeFiles = await readdir(join(EXAMPLES, "themes"))
+        for (const file of themeFiles) {
+            await copyFile(join(EXAMPLES, "themes", file), join(THEMES_DIR, file))
+        }
     }
 }
 

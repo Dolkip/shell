@@ -1,16 +1,38 @@
 {
-    "background": "#000000",
+    "meta": {
+        "name": "Shell Dark",
+        "description": "Default dark."
+    },
+    "background": "#181818",
     "accent": "#5865F2",
     "text": "#FFFFFF",
     "dim": "#888888",
-    "border": "#FFFFFF",
-    "panelBackground": "#111111",
-    panelBackgroundAlt: "#1a1a1a",
-    inputBackground: "#1a1a1a",
-    inputFocusedBackground: "#444444",
-    inputText: "#FFFFFF",
-    inputCursor: "#5865F2",
-    selectionBackground: "#1a1a1a",
-    selectionText: "#FFFFFF",
-    selectionDescription: "#AAAAAA"
+    "border": "#444444",
+    "message": {
+        "base": "#000000",
+        "hover": "#1a1a1a",
+        "text": "#FFFFFF"
+    },
+    "input": {
+        "base": "#1a1a1a",
+        "focused": "#444444",
+        "text": "#FFFFFF",
+        "cursor": "#5865F2",
+        "placeholder": "#666666"
+    },
+    "select": {
+        "base": "#111111",
+        "text": "#FFFFFF",
+        "selected": "#5865F2",
+        "selectedText": "#FFFFFF",
+        "description": "#888888"
+    },
+    "panel": {
+        "base": "#111111",
+        "alt": "#1a1a1a"
+    },
+    "scrollbar": {
+        "track": "#333333",
+        "thumb": "#5865F2"
+    }
 }

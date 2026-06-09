@@ -10,5 +10,5 @@ export const client = new Client({
 })
 
 client.on("clientReady", () => {
-  console.log(`ready now! wooo! ${client.user?.tag}`)
+  console.log(`connected to shellbot ${client.user?.tag}`)
 })

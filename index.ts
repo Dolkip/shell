@@ -13,7 +13,7 @@ process.on("SIGTERM", shutdown)
 process.on("SIGHUP",  shutdown)
 
 async function main() {
-  console.log("◐ Shell: " + kleur.dim("is a tiny Discord terminal client"))
+  console.log("◐ Shell " + kleur.dim("is a tiny Discord terminal client"))
   console.log("Starting...")
 
   await ensureDirectories()
@@ -35,11 +35,17 @@ async function main() {
     return
   }
 
+  /*
+  client.on("raw", (packet: any) => {
+    console.log("gateway:", packet.t, JSON.stringify(packet.d))
+  })
+  */
+
   await new Promise<void>((resolve) => {
     client.once("clientReady", () => resolve())
   })
 
-  console.log("discord ready! starting TUI...")
+  console.log("starting TUI...")
 
   await loadTheme()
   const { TUI } = await import("./tui")
