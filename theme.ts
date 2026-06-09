@@ -1,5 +1,5 @@
 import { join } from "node:path"
-import { Glob, JSON5 } from "bun"
+import { Glob } from "bun"
 import { RGBA } from "@opentui/core"
 import { config, SHELLDIR, isPlainObject, isString } from "./config"
 
@@ -90,7 +90,7 @@ export async function loadTheme(): Promise<void> {
         )
     }
 
-    const raw = JSON5.parse(await Bun.file(themePath).text())
+    const raw = JSON.parse(await Bun.file(themePath).text())
 
     if (!isPlainObject(raw)) {
         throw new Error(`Theme file "${themePath}" must contain a JSON object`)
