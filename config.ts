@@ -13,14 +13,13 @@ export interface Config {
     discord: {
         token: string
         id: string
-        guild: string
     }
 }
 
 export let config: Config = {
     theme: "shell",
     chunkSize: 50,
-    discord: { token: "", id: "", guild: "" },
+    discord: { token: "", id: "" },
 }
 
 export let currentChannelId = ""
@@ -75,7 +74,6 @@ export async function loadConfig(): Promise<void> {
     if (!isPlainObject(discord)) throw new Error("config.toml: [discord] section required")
     if (!isString(discord.token)) throw new Error(`config.toml: discord.token (${typeof discord.token}) must be a string`)
     if (!isString(discord.id)) throw new Error(`config.toml: discord.id (${typeof discord.id}) must be a string`)
-    if (!isString(discord.guild)) throw new Error(`config.toml: discord.guild (${typeof discord.guild}) must be a string`)
 
     config = raw as unknown as Config
 }

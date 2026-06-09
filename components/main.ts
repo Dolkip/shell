@@ -178,9 +178,7 @@ setOnChannelSelect((channelId: string) => {
 
 const guildIds = getGuilds();
 if (guildIds.length > 0) {
-    const targetGuild = config.discord.guild;
-    const targetId = targetGuild && guildIds.includes(targetGuild) ? targetGuild : guildIds[0];
-    await initGuildSelector(guildIds, targetId);
+    await initGuildSelector(guildIds, guildIds[0]);
     syncChannelSelection(currentChannelId);
 }
 
