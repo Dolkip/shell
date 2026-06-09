@@ -1,14 +1,13 @@
 import { BoxRenderable } from "@opentui/core"
 import { renderer } from "../renderer"
 import { messageBox, textArea } from "./messagebox"
-import { banner } from "./banner"
+import { guildMenu } from "./guilds"
 import { chatBox } from "./chat"
-import { fetchMessages, client } from "../discord"
+import { fetchMessages, client, getGuilds } from "../discord"
 import { makeMessage } from "./message"
-import { getGuilds } from "../discord"
-import { guildsMenu, initGuildSelector, setupGuildKeyHandler, setGuildSelectorFocused, setOnChannelSelect, syncChannelSelection } from "./guildmenu"
+import { channelMenu, initGuildSelector, setupGuildKeyHandler, setGuildSelectorFocused, setOnChannelSelect, syncChannelSelection } from "./channels"
 import { config, currentChannelId, setCurrentChannelId } from "../config"
-import { Message, Guild } from "discord.js"
+import { Message } from "discord.js"
 
 export const main = new BoxRenderable(renderer, {
     id: "main",
@@ -162,7 +161,7 @@ async function loadNewerChunk() {
 contentArea.add(chatBox)
 contentArea.add(messageBox)
 
-main.add(guildsMenu)
+main.add(channelMenu)
 main.add(contentArea)
 
 if (client.isReady()) {
@@ -173,38 +172,16 @@ if (client.isReady()) {
     })
 }
 
-async function findGuildByName(name: string): Promise<string | undefined> {
-    const guilds = client.guilds.cache;
-    const found = guilds.find((g: Guild) => g.name === name);
-    return found?.id;
-}
-
-async function initGuildSelectorForBrook4() {
-    const guildIds = getGuilds();
-
-    const configGuild = config.discord.guild;
-    let targetId: string | undefined;
-
-    if (configGuild && guildIds.includes(configGuild)) {
-        targetId = configGuild;
-    } else {
-        targetId = await findGuildByName("Brook 4");
-    }
-
-    await initGuildSelector(guildIds, targetId);
-    syncChannelSelection(currentChannelId);
-}
-
 setOnChannelSelect((channelId: string) => {
     void switchChannel(channelId);
 });
 
-if (client.isReady()) {
-    await initGuildSelectorForBrook4();
-} else {
-    client.once("clientReady", async () => {
-        await initGuildSelectorForBrook4();
-    })
+const guildIds = getGuilds();
+if (guildIds.length > 0) {
+    const targetGuild = config.discord.guild;
+    const targetId = targetGuild && guildIds.includes(targetGuild) ? targetGuild : guildIds[0];
+    await initGuildSelector(guildIds, targetId);
+    syncChannelSelection(currentChannelId);
 }
 
 client.on("messageCreate", async (message) => {
@@ -262,6 +239,8 @@ renderer.keyInput.on("keypress", (key: any) => {
         setGuildSelectorFocused(true);
         return;
     }
+
+    if (renderer.root.findDescendantById("channel-select")?.focused) return;
 
     if (key.name === "pageup" || (key.alt && key.name === "up")) {
         void loadOlderChunk();

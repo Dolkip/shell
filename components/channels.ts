@@ -13,7 +13,7 @@ export function setOnChannelSelect(handler: (channelId: string) => void) {
     onChannelSelect = handler;
 }
 
-export const guildsMenu = new BoxRenderable(renderer, {
+export const channelMenu = new BoxRenderable(renderer, {
     id: "guilds-menu",
     flexDirection: "column",
     width: 35,
@@ -22,23 +22,14 @@ export const guildsMenu = new BoxRenderable(renderer, {
     minHeight: 0,
 })
 
-const guildNameBox = new BoxRenderable(renderer, {
-    id: "guild-name-box",
-    width: "100%",
-    backgroundColor: Theme.panel.base,
-})
-
-const guildNameText = new TextRenderable(renderer, {
+export const guildNameText = new TextRenderable(renderer, {
     id: "guild-name",
-    content: "guild",
-    fg: Theme.accent,
-    attributes: TextAttributes.BOLD,
+    content: "",
 })
 
-guildNameBox.add(guildNameText)
-guildsMenu.add(guildNameBox)
+channelMenu.add(guildNameText)
 
-async function loadGuildChannels(guildId: string) {
+export async function loadGuildChannels(guildId: string) {
     if (currentGuildId === guildId) return;
     currentGuildId = guildId;
 
@@ -65,6 +56,7 @@ async function loadGuildChannels(guildId: string) {
     }
 
     channelSelect = new SelectRenderable(renderer, {
+        id: "channel-select",
         options: channelArray,
         width: "100%",
         flexGrow: 1,
@@ -85,7 +77,7 @@ async function loadGuildChannels(guildId: string) {
         }
     });
 
-    guildsMenu.add(channelSelect);
+    channelMenu.add(channelSelect);
 }
 
 export function syncChannelSelection(channelId: string) {
@@ -116,7 +108,7 @@ export function setupGuildKeyHandler() {
             channelSelect.blur();
             return;
         } 
-        if (key.name === "up" || key.name === "down") {
+        if ((key.name === "up" || key.name === "down") && channelSelect.focused) {
             channelSelect.focus();
         }
     });

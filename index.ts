@@ -38,7 +38,7 @@ async function main() {
     client.once("clientReady", () => resolve())
   })
 
-  console.log("starting TUI...")
+  Bun.write(Bun.stderr, "starting TUI...\n")
 
   await loadTheme()
   const { TUI } = await import("./tui")
@@ -46,6 +46,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error(err)
+  Bun.write(Bun.stderr, `FATAL: ${err}\n`)
   shutdown()
 })

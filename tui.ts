@@ -2,6 +2,7 @@ import { BoxRenderable } from "@opentui/core"
 import { renderer } from "./renderer"
 import { main } from "./components/main"
 import { banner } from "./components/banner"
+import { guildMenu } from "./components/guilds"
 
 export function TUI() {
     const app = new BoxRenderable(renderer, {
@@ -13,6 +14,7 @@ export function TUI() {
     })
 
     app.add(banner)
+    app.add(guildMenu)
     app.add(main)
     renderer.root.add(app)
   }
