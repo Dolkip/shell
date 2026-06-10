@@ -1,4 +1,4 @@
-import { BoxRenderable, TextRenderable, InputRenderable } from "@opentui/core"
+import { BoxRenderable, TextRenderable } from "@opentui/core"
 import { Theme } from "../theme"
 import { renderer } from "../renderer"
 
@@ -8,32 +8,28 @@ export const banner = new BoxRenderable(renderer, {
     height: 1,
     flexDirection: "row",
     flexShrink: 0,
+    backgroundColor: Theme.panel.alt,
 })
 
 export const bannerTitle = new TextRenderable(renderer, {
     id: "banner-title",
     content: "◐ Shell",
-    fg: Theme.text,
-    // attributes: TextAttributes.BOLD
+    fg: Theme.accent,
 })
 
 export const bannerText = new TextRenderable(renderer, {
     id: "banner-text",
-    content: " is a tiny Discord terminal client",
+    content: "  Discord terminal client",
     fg: Theme.dim,
 })
 
-export const search = new InputRenderable(renderer, {
-    id: "search",
-    placeholder: '🔍\uFE0E' + "Search...",
-    width: 20,
-    backgroundColor: Theme.input.base,
-    focusedBackgroundColor: Theme.input.focused,
-    textColor: Theme.input.text,
-    cursorColor: Theme.input.cursor,
+export const bannerKeys = new TextRenderable(renderer, {
+    id: "banner-keys",
+    content: "Ctrl+Tab: channels  PgUp/PgDn: history  Ctrl+S: send",
+    fg: Theme.dim,
     marginLeft: "auto",
 })
 
 banner.add(bannerTitle)
 banner.add(bannerText)
-banner.add(search)
+banner.add(bannerKeys)

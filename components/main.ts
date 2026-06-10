@@ -2,6 +2,7 @@ import { BoxRenderable } from "@opentui/core"
 import { renderer } from "../renderer"
 import { messageBox, textArea } from "./messagebox"
 import { chatBox } from "./chat"
+import { channelHeader, setChannelHeader } from "./channelheader"
 import { statusBar, setStatus } from "./status"
 import { fetchMessages, client, getGuilds } from "../discord"
 import { makeMessage } from "./message"
@@ -71,6 +72,7 @@ async function fetchAndRenderMessages(channelId: string) {
         chat = []
         position = 0
         clearChatBox()
+        setChannelHeader("# no channel selected")
         setStatus("No channel selected. Choose a channel from the sidebar.")
         return
     }
@@ -79,9 +81,14 @@ async function fetchAndRenderMessages(channelId: string) {
     const channel = await client.channels.fetch(channelId)
     if (fetchToken !== activeFetchToken) return
     if (!channel || !channel.isTextBased()) {
+        setChannelHeader("# unavailable")
         setStatus("Selected channel is unavailable or is not text based.")
         return
     }
+
+    const channelName = "name" in channel && typeof channel.name === "string" ? channel.name : channel.id
+    const guildName = "guild" in channel && channel.guild ? channel.guild.name : "Direct messages"
+    setChannelHeader(`# ${channelName}`, guildName)
 
     const messages = await fetchMessages(channelId, WINDOW_SIZE, 0, CHUNK_SIZE)
     if (fetchToken !== activeFetchToken) return
@@ -218,6 +225,7 @@ async function loadNewerChunk() {
     }
 }
 
+contentArea.add(channelHeader)
 contentArea.add(chatBox)
 contentArea.add(statusBar)
 contentArea.add(messageBox)

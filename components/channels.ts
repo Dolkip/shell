@@ -24,11 +24,15 @@ export const channelMenu = new BoxRenderable(renderer, {
     flexGrow: 1,
     flexShrink: 1,
     minHeight: 0,
+    border: true,
+    borderColor: Theme.border,
+    title: "Channels",
 })
 
 export const guildNameText = new TextRenderable(renderer, {
     id: "guild-name",
     content: "",
+    fg: Theme.accent,
 })
 
 channelMenu.add(guildNameText)

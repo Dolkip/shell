@@ -100,6 +100,12 @@ export async function makeMessage(message: Message) {
     Theme.text
   );
 
+  const timestampText = new TextRenderable(renderer, {
+    content: message.createdAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) + " ",
+    fg: Theme.dim,
+    flexShrink: 0,
+  });
+
   const userText = new TextRenderable(renderer, {
     content: message.author.username + "  ",
     fg: colour,
@@ -120,6 +126,7 @@ export async function makeMessage(message: Message) {
   });
 
   contentBox.add(messageText)
+  messageRow.add(timestampText);
   messageRow.add(userText);
   messageRow.add(contentBox);
 
