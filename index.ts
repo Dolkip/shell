@@ -20,16 +20,16 @@ async function main() {
   await loadConfig()
   await loadState()
 
-  const token = process.env.DISCORD_TOKEN ?? config.token
+  const token = config.token
   if (!token) {
-    console.error("ERROR: No Discord token configured. Set DISCORD_TOKEN env var or token in ~/.shell/config.toml")
+    console.error("No Discord token configured. Set token in ~/.shell/config.toml")
     shutdown(1)
   }
 
   try {
     await client.login(token)
   } catch (e) {
-    console.error(`ERROR: Failed to login: ${e}`)
+    console.error(`Failed to login: ${e}`)
     shutdown(1)
   }
 
@@ -45,6 +45,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error(`FATAL: ${err}`)
+  console.error(err)
   shutdown(1)
 })
