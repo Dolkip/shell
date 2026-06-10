@@ -5,7 +5,7 @@ export function getColour(member?: GuildMember, defaultColour: string | RGBA = "
   if (!member) return defaultColour
 
   const role = member.roles.cache
-    .filter(r => r.color && r.position > 0)
+    .filter(r => r.colors.primaryColor && r.position > 0)
     .sort((a, b) => b.position - a.position)
     .first()
 

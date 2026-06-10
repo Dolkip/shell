@@ -49,7 +49,6 @@ export async function TUI() {
     app.add(banner)
     app.add(guildMenu)
     app.add(main)
-    renderer.root.add(app)
 
     if (!currentChannelId && config.id) {
         setCurrentChannelId(config.id)
@@ -96,6 +95,7 @@ export async function TUI() {
             })
     });
 
+    renderer.root.add(app)
     setupMessageListeners()
     setupChatScrollHandler()
     textArea.focus()
