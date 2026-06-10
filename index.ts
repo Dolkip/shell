@@ -1,16 +1,16 @@
 import { client } from "./discord"
 import kleur from "kleur"
-import { ensureDirectories, loadConfig, config } from "./config"
+import { ensureDirectories, loadConfig, loadState, config } from "./config"
 import { loadTheme } from "./theme"
 
-function shutdown() {
+function shutdown(exitCode = 0) {
   client.destroy().catch(() => {})
-  process.exit(0)
+  process.exit(exitCode)
 }
 
-process.on("SIGINT",  shutdown)
-process.on("SIGTERM", shutdown)
-process.on("SIGHUP",  shutdown)
+process.on("SIGINT",  () => shutdown())
+process.on("SIGTERM", () => shutdown())
+process.on("SIGHUP",  () => shutdown())
 
 async function main() {
   console.log("◐ Shell " + kleur.dim("is a tiny Discord terminal client"))
@@ -18,11 +18,12 @@ async function main() {
 
   await ensureDirectories()
   await loadConfig()
+  await loadState()
 
-  const token = process.env.DISCORD_TOKEN ?? config.discord.token
+  const token = process.env.DISCORD_TOKEN ?? config.token
   if (!token) {
     Bun.write(Bun.stderr, "ERROR: No Discord token configured. Set DISCORD_TOKEN env var or token in ~/.shell/config.toml\n")
-    shutdown()
+    shutdown(1)
     return
   }
 
@@ -30,7 +31,7 @@ async function main() {
     await client.login(token)
   } catch (e) {
     Bun.write(Bun.stderr, `ERROR: Failed to login: ${e}\n`)
-    shutdown()
+    shutdown(1)
     return
   }
 
@@ -47,5 +48,5 @@ async function main() {
 
 main().catch((err) => {
   Bun.write(Bun.stderr, `FATAL: ${err}\n`)
-  shutdown()
+  shutdown(1)
 })

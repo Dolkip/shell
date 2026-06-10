@@ -4,7 +4,7 @@
 - **Bun** (not Node/npm). Install deps: `bun install`. Run: `bun run index.ts`.
 - Requires a Discord bot token. Set via `DISCORD_TOKEN` env var or `token` in `~/.shell/config.toml`.
 - User data lives in `~/.shell/`: `config.toml`, `state.json`, `themes/*.json`.
-- An example config is at `.env.example`.
+- An example config is at `examples/config.toml`.
 
 ## Commands
 | Command | Purpose |

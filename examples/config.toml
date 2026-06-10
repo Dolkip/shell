@@ -1,0 +1,6 @@
+# Shell configuration
+# You can also set DISCORD_TOKEN in your environment instead of storing a token here.
+theme = "shell"
+chunkSize = 50
+token = ""
+id = ""

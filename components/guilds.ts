@@ -1,8 +1,9 @@
 import { TabSelectRenderable, TabSelectRenderableEvents, type TabSelectOption } from "@opentui/core";
 import { renderer } from "../renderer";
 import { client } from "../discord"
-import { loadGuildChannels } from "./channels"
+import { loadGuildChannels, selectChannel } from "./channels"
 import { Theme } from "../theme"
+import { setStatus } from "./status"
 
 const guildData = Array.from(client.guilds.cache.values());
 
@@ -26,9 +27,26 @@ export const guildMenu = new TabSelectRenderable(renderer, {
     })),
 })
 
-guildMenu.on(TabSelectRenderableEvents.ITEM_SELECTED, (index: number, option: TabSelectOption) => {
-    if (option.value) {
-        loadGuildChannels(option.value as string);
-    }
+guildMenu.on(TabSelectRenderableEvents.ITEM_SELECTED, (_index: number, option: TabSelectOption) => {
+    if (typeof option.value !== "string") return
+
+    void loadGuildChannels(option.value)
+        .then((channelId) => {
+            if (channelId) {
+                selectChannel(channelId)
+            } else {
+                setStatus("Selected guild has no text channels.")
+            }
+        })
+        .catch((error) => {
+            setStatus(`Failed to load guild channels: ${error}`)
+        });
 });
 
+
+export function syncGuildSelection(guildId: string) {
+    const index = guildMenu.options.findIndex((option) => option.value === guildId)
+    if (index >= 0) {
+        guildMenu.setSelectedIndex(index)
+    }
+}

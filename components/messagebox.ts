@@ -3,6 +3,7 @@ import { renderer } from "../renderer"
 import { Theme } from "../theme"
 import { currentChannelId } from "../config"
 import { sendMessage } from "../discord"
+import { setStatus } from "./status"
 
 export const textArea = new TextareaRenderable(renderer, {
     width: "100%",
@@ -25,9 +26,16 @@ export const textArea = new TextareaRenderable(renderer, {
       if (!currentChannelId) {
         return;
       }
-      console.log("sent:", textArea.plainText);
-      sendMessage(currentChannelId, textArea.plainText);
+      const message = textArea.plainText;
+      const channelId = currentChannelId;
       textArea.setText("");
+      setStatus("Sending message…");
+      void sendMessage(channelId, message)
+        .then(() => setStatus("Message sent."))
+        .catch((error) => {
+          setStatus(`Failed to send message: ${error}`);
+          textArea.setText(message);
+        });
     },
     keyBindings: [{ name: "s", ctrl: true, action: "submit" }],
   })

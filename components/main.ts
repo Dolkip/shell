@@ -1,11 +1,12 @@
 import { BoxRenderable } from "@opentui/core"
 import { renderer } from "../renderer"
 import { messageBox, textArea } from "./messagebox"
-import { guildMenu } from "./guilds"
 import { chatBox } from "./chat"
+import { statusBar, setStatus } from "./status"
 import { fetchMessages, client, getGuilds } from "../discord"
 import { makeMessage } from "./message"
 import { channelMenu, initGuildSelector, setupGuildKeyHandler, setGuildSelectorFocused, setOnChannelSelect, syncChannelSelection } from "./channels"
+import { syncGuildSelection } from "./guilds"
 import { config, currentChannelId, setCurrentChannelId } from "../config"
 import { Message } from "discord.js"
 
@@ -32,10 +33,13 @@ const CHUNK_SIZE = config.chunkSize || 50
 const WINDOW_CHUNKS = 3
 const WINDOW_SIZE = CHUNK_SIZE * WINDOW_CHUNKS
 let isHistoryLoading = false
+let activeFetchToken = 0
 
 let chat: BoxRenderable[] = []
 
-setCurrentChannelId(config.discord.id)
+if (!currentChannelId && config.id) {
+    setCurrentChannelId(config.id)
+}
 
 async function renderMessages(messages: Message[]) {
     return Promise.all(messages.map((message) => makeMessage(message)))
@@ -55,11 +59,32 @@ function rerenderChat() {
     }
 }
 
+function scrollChildIntoViewAfterLayout(childId: string) {
+    chatBox.scrollChildIntoView(childId)
+    process.nextTick(() => chatBox.scrollChildIntoView(childId))
+}
+
 async function fetchAndRenderMessages(channelId: string) {
+    const fetchToken = ++activeFetchToken
+
+    if (!channelId) {
+        chat = []
+        position = 0
+        clearChatBox()
+        setStatus("No channel selected. Choose a channel from the sidebar.")
+        return
+    }
+
+    setStatus("Loading messages…")
     const channel = await client.channels.fetch(channelId)
-    if (!channel || !channel.isTextBased()) return
+    if (fetchToken !== activeFetchToken) return
+    if (!channel || !channel.isTextBased()) {
+        setStatus("Selected channel is unavailable or is not text based.")
+        return
+    }
 
     const messages = await fetchMessages(channelId, WINDOW_SIZE, 0, CHUNK_SIZE)
+    if (fetchToken !== activeFetchToken) return
 
     if ("guild" in channel && channel.guild) {
         const authorIds = [...new Set(messages.map(m => m.author.id))]
@@ -67,49 +92,64 @@ async function fetchAndRenderMessages(channelId: string) {
             authorIds.map(id => channel.guild.members.fetch({ user: id }))
         )
     }
+    if (fetchToken !== activeFetchToken) return
 
     chat = await renderMessages(messages)
-    position = 0
+    if (fetchToken !== activeFetchToken) return
 
-    clearChatBox()
-    for (const child of chat) {
-        chatBox.add(child)
-    }
+    position = 0
+    rerenderChat()
     chatBox.scrollTo(chatBox.scrollHeight)
+    setStatus(messages.length === 0 ? "No messages in this channel yet." : `Loaded ${messages.length} messages.`)
 }
 
 export async function switchChannel(channelId: string) {
     if (channelId === currentChannelId) return;
 
     setCurrentChannelId(channelId);
-
-    await fetchAndRenderMessages(channelId);
-
+    textArea.setText("");
     syncChannelSelection(channelId);
 
-    textArea.setText("");
+    try {
+        await fetchAndRenderMessages(channelId);
+        textArea.focus()
+    } catch (error) {
+        setStatus(`Failed to load channel: ${error}`)
+    }
 }
 
 async function initializeChat() {
-    await fetchAndRenderMessages(currentChannelId)
+    try {
+        await fetchAndRenderMessages(currentChannelId)
+    } catch (error) {
+        setStatus(`Failed to load initial channel: ${error}`)
+    }
 }
 
 async function loadOlderChunk() {
-    if (isHistoryLoading) {
+    if (isHistoryLoading || !currentChannelId) {
         return
     }
 
+    const channelId = currentChannelId
+    const fetchToken = activeFetchToken
     isHistoryLoading = true
+    setStatus("Loading older messages…")
 
     try {
         const offsetForOlderChunk = position + chat.length
-        const olderMessages = await fetchMessages(currentChannelId, CHUNK_SIZE, offsetForOlderChunk, CHUNK_SIZE)
+        const olderMessages = await fetchMessages(channelId, CHUNK_SIZE, offsetForOlderChunk, CHUNK_SIZE)
+        if (fetchToken !== activeFetchToken || channelId !== currentChannelId) return
 
         if (olderMessages.length === 0) {
+            setStatus("No older messages available.")
             return
         }
 
         const olderChunk = await renderMessages(olderMessages)
+        if (fetchToken !== activeFetchToken || channelId !== currentChannelId) return
+
+        const anchorId = chat[0]?.id
         const removeCount = Math.min(olderChunk.length, chat.length)
         const retained = chat.slice(0, Math.max(0, chat.length - removeCount))
 
@@ -117,29 +157,44 @@ async function loadOlderChunk() {
         position += olderChunk.length
 
         rerenderChat()
-        chatBox.scrollTop = 0
+        if (anchorId) {
+            scrollChildIntoViewAfterLayout(anchorId)
+        } else {
+            chatBox.scrollTo(0)
+        }
+        setStatus(`Loaded ${olderMessages.length} older messages. Previous top message is still visible.`)
+    } catch (error) {
+        setStatus(`Failed to load older messages: ${error}`)
     } finally {
         isHistoryLoading = false
     }
 }
 
 async function loadNewerChunk() {
-    if (isHistoryLoading || position <= 0) {
+    if (isHistoryLoading || position <= 0 || !currentChannelId) {
         return
     }
 
+    const channelId = currentChannelId
+    const fetchToken = activeFetchToken
     isHistoryLoading = true
+    setStatus("Loading newer messages…")
 
     try {
         const takeCount = Math.min(CHUNK_SIZE, position)
         const offsetForNewerChunk = position - takeCount
-        const newerMessages = await fetchMessages(currentChannelId, takeCount, offsetForNewerChunk, CHUNK_SIZE)
+        const newerMessages = await fetchMessages(channelId, takeCount, offsetForNewerChunk, CHUNK_SIZE)
+        if (fetchToken !== activeFetchToken || channelId !== currentChannelId) return
 
         if (newerMessages.length === 0) {
+            setStatus("No newer messages available.")
             return
         }
 
         const newerChunk = await renderMessages(newerMessages)
+        if (fetchToken !== activeFetchToken || channelId !== currentChannelId) return
+
+        const anchorId = chat.at(-1)?.id
         const removeCount = Math.min(newerChunk.length, chat.length)
         const retained = chat.slice(removeCount)
 
@@ -148,17 +203,23 @@ async function loadNewerChunk() {
 
         rerenderChat()
 
-        if (position === 0) {
+        if (anchorId) {
+            scrollChildIntoViewAfterLayout(anchorId)
+        } else if (position === 0) {
             chatBox.scrollTo(chatBox.scrollHeight)
         } else {
             chatBox.scrollTop = Math.max(0, chatBox.scrollHeight - (chatBox.height ?? 0))
         }
+        setStatus(`Loaded ${newerMessages.length} newer messages. Previous bottom message is still visible.`)
+    } catch (error) {
+        setStatus(`Failed to load newer messages: ${error}`)
     } finally {
         isHistoryLoading = false
     }
 }
 
 contentArea.add(chatBox)
+contentArea.add(statusBar)
 contentArea.add(messageBox)
 
 main.add(channelMenu)
@@ -173,13 +234,27 @@ if (client.isReady()) {
 }
 
 setOnChannelSelect((channelId: string) => {
-    void switchChannel(channelId);
+    void switchChannel(channelId).catch((error) => {
+        setStatus(`Failed to switch channel: ${error}`)
+    });
 });
 
 const guildIds = getGuilds();
 if (guildIds.length > 0) {
-    await initGuildSelector(guildIds, guildIds[0]);
-    syncChannelSelection(currentChannelId);
+    const currentChannel = currentChannelId
+        ? await client.channels.fetch(currentChannelId).catch(() => null)
+        : null
+    const targetGuildId = currentChannel && "guildId" in currentChannel
+        ? currentChannel.guildId ?? undefined
+        : undefined
+
+    const selectedChannelId = await initGuildSelector(guildIds, targetGuildId, currentChannelId);
+    if (targetGuildId) syncGuildSelection(targetGuildId);
+    if (currentChannelId) {
+        syncChannelSelection(currentChannelId);
+    } else if (selectedChannelId) {
+        await switchChannel(selectedChannelId);
+    }
 }
 
 client.on("messageCreate", async (message) => {
@@ -193,7 +268,12 @@ client.on("messageCreate", async (message) => {
             return
         }
 
-        chat.push(await makeMessage(message))
+        const renderedMessage = await makeMessage(message)
+        if (message.channelId !== currentChannelId || chat.some((m) => m.id === message.id)) {
+            return
+        }
+
+        chat.push(renderedMessage)
 
         if (chat.length > WINDOW_SIZE) {
             chat = chat.slice(chat.length - WINDOW_SIZE)
@@ -201,6 +281,7 @@ client.on("messageCreate", async (message) => {
 
         rerenderChat()
         chatBox.scrollTo(chatBox.scrollHeight)
+        setStatus("New message received.")
     }
 })
 
@@ -211,6 +292,7 @@ client.on("messageDelete", async (message) => {
             chat.splice(index, 1)
         }
         rerenderChat()
+        setStatus("Message deleted.")
     }
 });
 

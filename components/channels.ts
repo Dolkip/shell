@@ -1,11 +1,15 @@
-import { BoxRenderable, TextRenderable, SelectRenderable, SelectRenderableEvents, TextAttributes, type KeyEvent } from "@opentui/core";
+import { BoxRenderable, TextRenderable, SelectRenderable, SelectRenderableEvents, type KeyEvent, type SelectOption } from "@opentui/core";
 import { renderer } from "../renderer";
 import { fetchGuild, getGuildChannels } from "../discord";
 import { Theme } from "../theme";
 
+interface ChannelOption extends SelectOption {
+    value: string
+}
+
 let channelSelect: SelectRenderable | null = null;
 let currentGuildId: string | null = null;
-let guildIds: string[] = [];
+let channelOptions: ChannelOption[] = [];
 
 export let onChannelSelect: ((channelId: string) => void) | null = null;
 
@@ -14,7 +18,7 @@ export function setOnChannelSelect(handler: (channelId: string) => void) {
 }
 
 export const channelMenu = new BoxRenderable(renderer, {
-    id: "guilds-menu",
+    id: "channel-menu",
     flexDirection: "column",
     width: 35,
     flexGrow: 1,
@@ -29,8 +33,25 @@ export const guildNameText = new TextRenderable(renderer, {
 
 channelMenu.add(guildNameText)
 
-export async function loadGuildChannels(guildId: string) {
-    if (currentGuildId === guildId) return;
+function selectedChannelId(): string | null {
+    const option = channelSelect?.getSelectedOption()
+    return typeof option?.value === "string" ? option.value : null
+}
+
+export function selectChannel(channelId: string) {
+    if (!channelId) return
+    onChannelSelect?.(channelId)
+}
+
+export async function loadGuildChannels(guildId: string, preferredChannelId?: string): Promise<string | null> {
+    if (currentGuildId === guildId && channelOptions.length > 0) {
+        const selected = preferredChannelId && channelOptions.some((option) => option.value === preferredChannelId)
+            ? preferredChannelId
+            : selectedChannelId() ?? channelOptions[0]?.value ?? null
+        if (selected) syncChannelSelection(selected)
+        return selected
+    }
+
     currentGuildId = guildId;
 
     const guild = await fetchGuild(guildId);
@@ -38,12 +59,12 @@ export async function loadGuildChannels(guildId: string) {
 
     const channels = await getGuildChannels(guild);
 
-    const channelArray = channels
+    channelOptions = channels
         .filter(ch => ch.isTextBased())
         .map(ch => ({
             name: "#" + ch.name,
             description: ch.id,
-            value: ch.id
+            value: ch.id,
         }));
 
     if (channelSelect) {
@@ -51,13 +72,21 @@ export async function loadGuildChannels(guildId: string) {
         channelSelect = null;
     }
 
-    if (channelArray.length === 0) {
-        return;
+    if (channelOptions.length === 0) {
+        return null;
     }
+
+    const selectedIndex = Math.max(
+        0,
+        preferredChannelId
+            ? channelOptions.findIndex((option) => option.value === preferredChannelId)
+            : 0,
+    )
 
     channelSelect = new SelectRenderable(renderer, {
         id: "channel-select",
-        options: channelArray,
+        options: channelOptions,
+        selectedIndex,
         width: "100%",
         flexGrow: 1,
         textColor: Theme.select.text,
@@ -71,33 +100,32 @@ export async function loadGuildChannels(guildId: string) {
         showDescription: false,
     });
 
-    channelSelect.on(SelectRenderableEvents.ITEM_SELECTED, (index: number, option: any) => {
-        if (onChannelSelect) {
-            onChannelSelect(option.value);
+    channelSelect.on(SelectRenderableEvents.ITEM_SELECTED, (_index: number, option: SelectOption) => {
+        if (typeof option.value === "string") {
+            selectChannel(option.value);
         }
     });
 
     channelMenu.add(channelSelect);
+    return channelOptions[selectedIndex]?.value ?? null
 }
 
 export function syncChannelSelection(channelId: string) {
     if (!channelSelect) return;
-    const options = channelSelect.options;
-    const idx = options.findIndex((o: any) => o.value === channelId);
+    const idx = channelOptions.findIndex((option) => option.value === channelId);
     if (idx >= 0) {
         channelSelect.setSelectedIndex(idx);
     }
 }
 
-export async function initGuildSelector(guildIdsList: string[], targetGuildId?: string) {
-    guildIds = guildIdsList;
+export async function initGuildSelector(guildIdsList: string[], targetGuildId?: string, targetChannelId?: string) {
+    if (guildIdsList.length === 0) return null
 
-    if (guildIds.length > 0) {
-        const guildId = targetGuildId && guildIdsList.includes(targetGuildId)
-            ? targetGuildId
-            : guildIds[0]!;
-        await loadGuildChannels(guildId);
-    }
+    const guildId = targetGuildId && guildIdsList.includes(targetGuildId)
+        ? targetGuildId
+        : guildIdsList[0]!;
+
+    return loadGuildChannels(guildId, targetChannelId);
 }
 
 export function setupGuildKeyHandler() {
@@ -107,7 +135,7 @@ export function setupGuildKeyHandler() {
         if (key.ctrl && key.name === "tab") {
             channelSelect.blur();
             return;
-        } 
+        }
         if ((key.name === "up" || key.name === "down") && channelSelect.focused) {
             channelSelect.focus();
         }
