@@ -1,4 +1,4 @@
-import { BoxRenderable, TextRenderable, SelectRenderable, SelectRenderableEvents, type KeyEvent, type SelectOption } from "@opentui/core";
+import { BoxRenderable, SelectRenderable, SelectRenderableEvents, type KeyEvent, type SelectOption } from "@opentui/core";
 import { renderer } from "../renderer";
 import { fetchGuild, getGuildChannels } from "../discord";
 import { Theme } from "../theme";
@@ -24,18 +24,7 @@ export const channelMenu = new BoxRenderable(renderer, {
     flexGrow: 1,
     flexShrink: 1,
     minHeight: 0,
-    border: true,
-    borderColor: Theme.border,
-    title: "Channels",
 })
-
-export const guildNameText = new TextRenderable(renderer, {
-    id: "guild-name",
-    content: "",
-    fg: Theme.accent,
-})
-
-channelMenu.add(guildNameText)
 
 function selectedChannelId(): string | null {
     const option = channelSelect?.getSelectedOption()
@@ -59,7 +48,6 @@ export async function loadGuildChannels(guildId: string, preferredChannelId?: st
     currentGuildId = guildId;
 
     const guild = await fetchGuild(guildId);
-    guildNameText.content = guild.name || "Unknown";
 
     const channels = await getGuildChannels(guild);
 

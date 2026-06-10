@@ -1,11 +1,17 @@
 {
   "version": 1,
   "skills": {
+    "discord-bot-architect": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/discord-bot-architect/SKILL.md",
+      "computedHash": "11e722b57ad28bc1919069ef3e82e627033373631e5647100356bc9181a51f68"
+    },
     "opentui": {
       "source": "anomalyco/opentui",
       "sourceType": "github",
       "skillPath": "packages/web/src/content/SKILL.md",
-      "computedHash": "e6927682799bcdbe42b801ba1c84a88bb7223bc944eee61f04cf2ac3a740fd13"
+      "computedHash": "7bcb5a50fa2f342c10e661a369a800142b589769319f26c3adfa49e0f64e7b22"
     }
   }
 }

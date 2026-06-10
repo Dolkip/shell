@@ -8,9 +8,8 @@ export const chatBox = new ScrollBoxRenderable(renderer, {
     flexGrow: 1,
     flexShrink: 1,
     minHeight: 0,
-    border: true,
-    borderColor: Theme.border,
-    title: "Messages",
+    stickyScroll: true,
+    stickyStart: "bottom",
     viewportCulling: true,
     scrollbarOptions: {
         trackOptions: {

@@ -2,8 +2,8 @@ import { TabSelectRenderable, TabSelectRenderableEvents, type TabSelectOption } 
 import { renderer } from "../renderer";
 import { client } from "../discord"
 import { loadGuildChannels, selectChannel } from "./channels"
+// import { setStatus } from "./status"
 import { Theme } from "../theme"
-import { setStatus } from "./status"
 
 const guildData = Array.from(client.guilds.cache.values());
 
@@ -35,11 +35,11 @@ guildMenu.on(TabSelectRenderableEvents.ITEM_SELECTED, (_index: number, option: T
             if (channelId) {
                 selectChannel(channelId)
             } else {
-                setStatus("Selected guild has no text channels.")
+                // setStatus("Selected guild has no text channels.")
             }
         })
         .catch((error) => {
-            setStatus(`Failed to load guild channels: ${error}`)
+            // setStatus(`Failed to load guild channels: ${error}`)
         });
 });
 

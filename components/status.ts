@@ -21,8 +21,7 @@ const statusHelp = new TextRenderable(renderer, {
     id: "status-help",
     content: "↑↓ select · Enter open · Alt+↑/↓ history",
     fg: Theme.dim,
-    marginLeft: "auto",
-})
+    marginLeft: "auto",})
 
 statusBar.add(statusText)
 statusBar.add(statusHelp)

@@ -14,22 +14,14 @@ export const banner = new BoxRenderable(renderer, {
 export const bannerTitle = new TextRenderable(renderer, {
     id: "banner-title",
     content: "◐ Shell",
-    fg: Theme.accent,
+    fg: Theme.text,
 })
 
 export const bannerText = new TextRenderable(renderer, {
     id: "banner-text",
-    content: "  Discord terminal client",
+    content: " is a tiny Discord terminal client",
     fg: Theme.dim,
-})
-
-export const bannerKeys = new TextRenderable(renderer, {
-    id: "banner-keys",
-    content: "Ctrl+Tab: channels  PgUp/PgDn: history  Ctrl+S: send",
-    fg: Theme.dim,
-    marginLeft: "auto",
 })
 
 banner.add(bannerTitle)
 banner.add(bannerText)
-banner.add(bannerKeys)
