@@ -7,6 +7,7 @@ export const channelHeader = new BoxRenderable(renderer, {
     width: "100%",
     flexShrink: 0,
     flexDirection: "row",
+    gap: 1,
     backgroundColor: theme.panel.base,
 })
 
