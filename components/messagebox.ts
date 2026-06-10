@@ -1,23 +1,21 @@
 import { TextareaRenderable, BoxRenderable } from "@opentui/core"
 import { renderer } from "../renderer"
-import { Theme } from "../theme"
+import { theme } from "../theme"
 import { currentChannelId } from "../config"
 import { sendMessage } from "../discord"
-import { setStatus } from "./status"
 
 export const textArea = new TextareaRenderable(renderer, {
     width: "100%",
     minHeight: 1,
     maxHeight: 5,
-  
-    backgroundColor: Theme.input.base,
-    focusedBackgroundColor: Theme.input.focused,
-    textColor: Theme.input.text,
-    focusedTextColor: Theme.input.focusedText,
-    cursorColor: Theme.input.cursor,
-    placeholderColor: Theme.input.placeholder,
-    selectionBg: Theme.input.selectionBg,
-    selectionFg: Theme.input.selectionFg,
+    backgroundColor: theme.input.base,
+    focusedBackgroundColor: theme.input.focused,
+    textColor: theme.input.text,
+    focusedTextColor: theme.input.focusedText,
+    cursorColor: theme.input.cursor,
+    placeholderColor: theme.input.placeholder,
+    selectionBg: theme.input.selectionBg,
+    selectionFg: theme.input.selectionFg,
     placeholder: "Type here. Ctrl+S to send.",
     onSubmit: () => {
       if (textArea.plainText.length === 0) {
@@ -29,11 +27,8 @@ export const textArea = new TextareaRenderable(renderer, {
       const message = textArea.plainText;
       const channelId = currentChannelId;
       textArea.setText("");
-      setStatus("Sending message…");
       void sendMessage(channelId, message)
-        .then(() => setStatus("Message sent."))
         .catch((error) => {
-          setStatus(`Failed to send message: ${error}`);
           textArea.setText(message);
         });
     },

@@ -1,5 +1,5 @@
 import { BoxRenderable, TextRenderable } from "@opentui/core"
-import { Theme } from "../theme"
+import { theme } from "../theme"
 import { renderer } from "../renderer"
 
 export const banner = new BoxRenderable(renderer, {
@@ -8,19 +8,19 @@ export const banner = new BoxRenderable(renderer, {
     height: 1,
     flexDirection: "row",
     flexShrink: 0,
-    backgroundColor: Theme.panel.alt,
+    backgroundColor: theme.panel.alt,
 })
 
 export const bannerTitle = new TextRenderable(renderer, {
     id: "banner-title",
     content: "◐ Shell",
-    fg: Theme.text,
+    fg: theme.text,
 })
 
 export const bannerText = new TextRenderable(renderer, {
     id: "banner-text",
     content: " is a tiny Discord terminal client",
-    fg: Theme.dim,
+    fg: theme.dim,
 })
 
 banner.add(bannerTitle)

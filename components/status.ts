@@ -1,6 +1,6 @@
 import { BoxRenderable, TextRenderable } from "@opentui/core"
 import { renderer } from "../renderer"
-import { Theme } from "../theme"
+import { theme } from "../theme"
 
 export const statusBar = new BoxRenderable(renderer, {
     id: "status-bar",
@@ -8,24 +8,20 @@ export const statusBar = new BoxRenderable(renderer, {
     height: 1,
     flexShrink: 0,
     flexDirection: "row",
-    backgroundColor: Theme.panel.alt,
+    backgroundColor: theme.panel.alt,
 })
 
-const statusText = new TextRenderable(renderer, {
+export const statusText = new TextRenderable(renderer, {
     id: "status-text",
     content: "Ready",
-    fg: Theme.dim,
+    fg: theme.dim,
 })
 
-const statusHelp = new TextRenderable(renderer, {
+export const statusHelp = new TextRenderable(renderer, {
     id: "status-help",
     content: "↑↓ select · Enter open · Alt+↑/↓ history",
-    fg: Theme.dim,
+    fg: theme.dim,
     marginLeft: "auto",})
 
 statusBar.add(statusText)
 statusBar.add(statusHelp)
-
-export function setStatus(message: string) {
-    statusText.content = message
-}

@@ -1,5 +1,5 @@
 import { ConsolePosition, createCliRenderer } from "@opentui/core";
-import { Theme } from "./theme";
+import { theme } from "./theme";
 import { client } from "./discord";
 
 export const renderer = await createCliRenderer({
@@ -8,7 +8,7 @@ export const renderer = await createCliRenderer({
     position: ConsolePosition.BOTTOM,
     sizePercent: 30,
   },
-  backgroundColor: Theme.background,
+  backgroundColor: theme.background,
   onDestroy: () => {
     client.destroy();
   },

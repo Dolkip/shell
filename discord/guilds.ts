@@ -12,13 +12,7 @@ export async function fetchChannel(channelId: string) {
 }
 
 export async function fetchGuild(guildId: string): Promise<Guild> {
-  const guild = await client.guilds.fetch(guildId)
-
-  if (!guild) {
-    throw new Error("guild does not exist")
-  }
-
-  return guild
+  return client.guilds.fetch(guildId)
 }
 
 export function getGuilds() {

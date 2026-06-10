@@ -22,31 +22,29 @@ async function main() {
 
   const token = process.env.DISCORD_TOKEN ?? config.token
   if (!token) {
-    Bun.write(Bun.stderr, "ERROR: No Discord token configured. Set DISCORD_TOKEN env var or token in ~/.shell/config.toml\n")
+    console.error("ERROR: No Discord token configured. Set DISCORD_TOKEN env var or token in ~/.shell/config.toml")
     shutdown(1)
-    return
   }
 
   try {
     await client.login(token)
   } catch (e) {
-    Bun.write(Bun.stderr, `ERROR: Failed to login: ${e}\n`)
+    console.error(`ERROR: Failed to login: ${e}`)
     shutdown(1)
-    return
   }
 
   await new Promise<void>((resolve) => {
     client.once("clientReady", () => resolve())
   })
 
-  Bun.write(Bun.stderr, "starting TUI...\n")
+  console.log("starting TUI...")
 
   await loadTheme()
   const { TUI } = await import("./tui")
-  TUI()
+  await TUI()
 }
 
 main().catch((err) => {
-  Bun.write(Bun.stderr, `FATAL: ${err}\n`)
+  console.error(`FATAL: ${err}`)
   shutdown(1)
 })

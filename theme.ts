@@ -1,6 +1,6 @@
 import { join } from "node:path"
 import { RGBA } from "@opentui/core"
-import { config, SHELLDIR, isPlainObject, isString } from "./config"
+import { config, SHELLDIR } from "./config"
 
 export interface Theme {
     meta: {
@@ -60,8 +60,13 @@ export interface Theme {
 }
 
 const THEMES_DIR = join(SHELLDIR, "themes")
+
+function isPlainObject(v: unknown): v is Record<string, unknown> {
+    return typeof v === "object" && v !== null && !Array.isArray(v)
+}
+
 function parseColor(value: unknown, path: string): RGBA {
-    if (!isString(value)) {
+    if (typeof value !== "string") {
         throw new Error(`Theme color "${path}" must be a string, got ${typeof value}`)
     }
     const hex = Bun.color(value)
@@ -80,15 +85,15 @@ export async function loadTheme(): Promise<void> {
     const themeFile = `${config.theme}.json`
     const themePath = join(THEMES_DIR, themeFile)
 
-    const theme = Bun.file(themePath)
-    if (!(await theme.exists())) {
+    const themeFileHandle = Bun.file(themePath)
+    if (!(await themeFileHandle.exists())) {
         const availableThemes = Array.from(new Bun.Glob("*.json").scanSync(THEMES_DIR)).sort()
         throw new Error(
             `Theme "${config.theme}" was not found. Available themes: ${availableThemes.join(", ") || "(none)"}`,
         )
     }
 
-    const raw = JSON.parse(await theme.text())
+    const raw = JSON.parse(await themeFileHandle.text())
 
     if (!isPlainObject(raw)) {
         throw new Error(`Theme file "${themePath}" must contain a JSON object`)
@@ -107,10 +112,10 @@ export async function loadTheme(): Promise<void> {
     const dim = parseColor(raw.dim ?? "#888888", "dim")
     const accent = parseColor(raw.accent ?? "#5865F2", "accent")
 
-    Theme = {
+    theme = {
         meta: {
-            name: isString(metaRaw.name) ? metaRaw.name : config.theme,
-            description: isString(metaRaw.description) ? metaRaw.description : "",
+            name: typeof metaRaw.name === "string" ? metaRaw.name : config.theme,
+            description: typeof metaRaw.description === "string" ? metaRaw.description : "",
         },
         background,
         text,
@@ -165,4 +170,4 @@ export async function loadTheme(): Promise<void> {
     }
 }
 
-export let Theme: Theme
+export let theme: Theme

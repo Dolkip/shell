@@ -1,6 +1,6 @@
 import { ScrollBoxRenderable } from "@opentui/core";
 import { renderer } from "../renderer";
-import { Theme } from "../theme"
+import { theme } from "../theme"
 
 export const chatBox = new ScrollBoxRenderable(renderer, {
     id: "chat-box",
@@ -13,8 +13,8 @@ export const chatBox = new ScrollBoxRenderable(renderer, {
     viewportCulling: true,
     scrollbarOptions: {
         trackOptions: {
-            backgroundColor: Theme.scrollbar.track,
-            foregroundColor: Theme.scrollbar.thumb,
+            backgroundColor: theme.scrollbar.track,
+            foregroundColor: theme.scrollbar.thumb,
         },
     },
 })

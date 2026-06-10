@@ -3,6 +3,7 @@ import { homedir } from "node:os"
 import { Glob } from "bun"
 import { mkdir, access, readdir, copyFile, writeFile } from "node:fs/promises"
 
+
 export const SHELLDIR = join(homedir(), ".shell")
 const THEMES_DIR = join(SHELLDIR, "themes")
 const EXAMPLES = join(import.meta.dir, "examples")
@@ -47,12 +48,8 @@ export function setCurrentChannelId(id: string) {
     })
 }
 
-export function isPlainObject(v: unknown): v is Record<string, unknown> {
+function isPlainObject(v: unknown): v is Record<string, unknown> {
     return typeof v === "object" && v !== null && !Array.isArray(v)
-}
-
-export function isString(v: unknown): v is string {
-    return typeof v === "string"
 }
 
 async function fileExists(p: string): Promise<boolean> {
@@ -88,7 +85,7 @@ export async function ensureDirectories(): Promise<void> {
 function readString(raw: Record<string, unknown>, key: string, label = key): string {
     const value = raw[key]
     if (value === undefined) return ""
-    if (!isString(value)) throw new Error(`config.toml: ${label} (${typeof value}) must be a string`)
+    if (typeof value !== "string") throw new Error(`config.toml: ${label} (${typeof value}) must be a string`)
     return value
 }
 
@@ -97,7 +94,7 @@ export async function loadConfig(): Promise<void> {
     const raw = (mod.default ?? mod) as Record<string, unknown>
 
     if (!isPlainObject(raw)) throw new Error("config.toml must be a table")
-    if (!isString(raw.theme)) throw new Error(`config.toml: theme (${typeof raw.theme}) must be a string`)
+    if (typeof raw.theme !== "string") throw new Error(`config.toml: theme (${typeof raw.theme}) must be a string`)
     if (typeof raw.chunkSize !== "number") throw new Error(`config.toml: chunkSize (${typeof raw.chunkSize}) must be a number`)
 
     const discord = isPlainObject(raw.discord) ? raw.discord : {}
@@ -121,7 +118,7 @@ export async function loadState(): Promise<void> {
 
     state = {
         theme: config.theme,
-        currentChannelId: isString(raw.currentChannelId) ? raw.currentChannelId : "",
+        currentChannelId: typeof raw.currentChannelId === "string" ? raw.currentChannelId : "",
     }
 
     currentChannelId = state.currentChannelId || config.id
