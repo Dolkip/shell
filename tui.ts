@@ -234,8 +234,6 @@ async function switchChannel(channelId: string) {
         addPersistentDMChannel(channelId)
     }
 
-    try {
-        await loadChannelMessages(channelId);
-        textArea.focus()
-    } catch {}
+    await loadChannelMessages(channelId);
+    textArea.focus()
 }

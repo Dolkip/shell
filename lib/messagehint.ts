@@ -3,7 +3,7 @@ import { renderer } from "../renderer"
 import { theme } from "../theme"
 import { client } from "../discord"
 import { currentChannelId } from "../config"
-import { showHint, updateHint, clearHint, isHintVisible, selectNextHint, selectPrevHint, hintSelect } from "../components/messagehint"
+import { updateHint, clearHint, isHintVisible, selectNextHint, selectPrevHint, hintSelect } from "../components/messagehint"
 
 interface MentionCandidate {
   userId: string
@@ -206,7 +206,7 @@ function confirmMention(): void {
   activeTextarea.deleteSelection()
   activeTextarea.insertText(mentionText)
 
-  const extmarkEnd = activeTextarea.cursorOffset
+  const extmarkEnd = activeTextarea.cursorOffset 
 
   activeTextarea.extmarks.create({
     start: triggerStart,
@@ -216,6 +216,8 @@ function confirmMention(): void {
     typeId: mentionTypeId,
     data: { userId },
   })
+
+  activeTextarea.insertText(" ")
 
   currentTrigger = null
   clearHint()
