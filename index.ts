@@ -1,6 +1,7 @@
 import { client } from "./discord"
 import kleur from "kleur"
-import { ensureDirectories, loadConfig, loadState, config } from "./config"
+import { ensureDirectories, loadConfig, loadState, saveState, state, config } from "./config"
+import { restoreDMChannels } from "./discord/dms"
 import { loadTheme } from "./theme"
 
 function shutdown(exitCode = 0) {
@@ -36,6 +37,14 @@ async function main() {
   await new Promise<void>((resolve) => {
     client.once("clientReady", () => resolve())
   })
+
+  if (state.dmChannels.length > 0) {
+    const valid = await restoreDMChannels(state.dmChannels)
+    if (valid.length !== state.dmChannels.length) {
+      state.dmChannels = valid
+      await saveState()
+    }
+  }
 
   console.log("starting TUI...")
 

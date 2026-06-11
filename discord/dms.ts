@@ -5,6 +5,17 @@ export async function openDM(userId: string): Promise<DMChannel> {
     return client.users.createDM(userId)
 }
 
+export async function restoreDMChannels(ids: string[]): Promise<string[]> {
+    const valid: string[] = []
+    for (const id of ids) {
+        try {
+            const ch = await client.channels.fetch(id)
+            if (ch?.isDMBased()) valid.push(id)
+        } catch {}
+    }
+    return valid
+}
+
 export async function getDMChannels() {
     return Array.from(client.channels.cache.values())
         .filter((ch) => ch.isDMBased() && !ch.partial)
@@ -28,23 +39,6 @@ export function findExistingDM(userId: string): DMChannel | undefined {
             ch.isDMBased() && !ch.partial && ch.type === ChannelType.DM
             && (ch as DMChannel).recipientId === userId
     )
-}
-
-export function getDMRecipientStatus(channel: Channel): string {
-    if (!channel.isDMBased() || channel.type !== ChannelType.DM) return ""
-    const dm = channel as DMChannel
-    if (!dm.recipient) return ""
-    for (const guild of client.guilds.cache.values()) {
-        const member = guild.members.cache.get(dm.recipient.id)
-        if (member?.presence?.status) {
-            const s = member.presence.status
-            if (s === "online") return "● online"
-            if (s === "idle") return "◐ idle"
-            if (s === "dnd") return "● do not disturb"
-            if (s === "offline") return "○ offline"
-        }
-    }
-    return ""
 }
 
 export function getDMChannelLastActivity(channel: Channel): number {

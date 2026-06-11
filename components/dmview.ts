@@ -51,40 +51,37 @@ dmSearchBox.on(InputRenderableEvents.INPUT, (value: string) => {
     }, 200)
 })
 
+async function openDmForUser(userId: string) {
+    const existing = findExistingDM(userId)
+    if (existing?.id) {
+        clearResults()
+        onDmCreated?.(existing.id)
+        return
+    }
+    try {
+        const dm = await openDM(userId)
+        clearResults()
+        onDmCreated?.(dm.id)
+    } catch {
+        clearResults()
+    }
+}
+
 dmSearchBox.on(InputRenderableEvents.ENTER, async (value: string) => {
     if (!value.trim()) return
-    if (resultsSelect && resultsSelect.getSelectedOption()) {
-        const option = resultsSelect.getSelectedOption()
+
+    const trimmed = value.trim()
+
+    if (resultsSelect) {
+        const option = resultsSelect.getSelectedOption() ?? resultsSelect.options[0]
         if (option && typeof option.value === "string") {
-            const existing = findExistingDM(option.value)
-            const channelId = existing?.id
-            if (channelId) {
-                clearResults()
-                onDmCreated?.(channelId)
-                return
-            }
-            try {
-                const dm = await openDM(option.value)
-                clearResults()
-                onDmCreated?.(dm.id)
-            } catch {
-                clearResults()
-            }
-        }
-    } else {
-        const existing = findExistingDM(value.trim())
-        if (existing?.id) {
-            clearResults()
-            onDmCreated?.(existing.id)
+            await openDmForUser(option.value)
             return
         }
-        try {
-            const dm = await openDM(value.trim())
-            clearResults()
-            onDmCreated?.(dm.id)
-        } catch {
-            clearResults()
-        }
+    }
+
+    if (/^\d{17,19}$/.test(trimmed)) {
+        await openDmForUser(trimmed)
     }
 })
 
@@ -144,20 +141,7 @@ async function updateResults(users: Array<{ userId: string; username: string; di
 
     resultsSelect.on(SelectRenderableEvents.ITEM_SELECTED, async (_index: number, option: SelectOption) => {
         if (typeof option.value === "string") {
-            const existing = findExistingDM(option.value)
-            const channelId = existing?.id
-            if (channelId) {
-                clearResults()
-                onDmCreated?.(channelId)
-                return
-            }
-            try {
-                const dm = await openDM(option.value)
-                clearResults()
-                onDmCreated?.(dm.id)
-            } catch {
-                clearResults()
-            }
+            await openDmForUser(option.value)
         }
     })
 

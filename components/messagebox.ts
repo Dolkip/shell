@@ -3,6 +3,8 @@ import { renderer } from "../renderer"
 import { theme } from "../theme"
 import { currentChannelId } from "../config"
 import { sendMessage } from "../discord"
+import { hintBox } from "./messagehint"
+import { initHintSystem, processTextForSend } from "../lib/messagehint"
 
 export const textArea = new TextareaRenderable(renderer, {
     width: "100%",
@@ -18,22 +20,24 @@ export const textArea = new TextareaRenderable(renderer, {
     selectionFg: theme.input.selectionFg,
     placeholder: "Type here. Ctrl+S to send.",
     onSubmit: () => {
-      if (textArea.plainText.length === 0) {
+      const text = processTextForSend();
+      if (text.length === 0) {
         return;
       }
       if (!currentChannelId) {
         return;
       }
-      const message = textArea.plainText;
       const channelId = currentChannelId;
       textArea.setText("");
-      void sendMessage(channelId, message)
+      void sendMessage(channelId, text)
         .catch((error) => {
-          textArea.setText(message);
+          textArea.setText(text);
         });
     },
     keyBindings: [{ name: "s", ctrl: true, action: "submit" }],
   })
+
+initHintSystem(textArea)
 
 export const messageBox = new BoxRenderable(renderer, {
     id: "message-box",
@@ -43,4 +47,5 @@ export const messageBox = new BoxRenderable(renderer, {
     flexDirection: "column",
 })
 
+messageBox.add(hintBox)
 messageBox.add(textArea)

@@ -2,16 +2,17 @@ import { BoxRenderable } from "@opentui/core"
 import type { TabSelectOption } from "@opentui/core"
 import { renderer } from "./renderer"
 import { banner } from "./components/banner"
-import { guildMenuContainer, setOnGuildItemSelected, refreshGuilds, ensureGuildMenu } from "./components/guilds"
+import { guildMenuContainer } from "./components/guilds"
+import { setOnGuildItemSelected, refreshGuilds, ensureGuildMenu, syncGuildSelection } from "./lib/guilds"
 import { channelMenu } from "./components/channels"
 import { channelHeader } from "./components/channeldisplay"
 import { chatBox } from "./components/chat"
 import { messageBox, textArea } from "./components/messagebox"
-import { config, currentChannelId, setCurrentChannelId } from "./config"
+import { config, currentChannelId, setCurrentChannelId, addPersistentDMChannel } from "./config"
 import { client, getGuilds } from "./discord"
 import { loadGuildChannels, selectChannel, initGuildSelector, setupGuildKeyHandler, setGuildSelectorFocused, setOnChannelSelect, syncChannelSelection, refreshDMChannels, getCurrentGuildId } from "./lib/channels"
 import { isDMChannel } from "./discord/dms"
-import { syncGuildSelection } from "./lib/guilds"
+
 import { initializeChat, loadChannelMessages, loadOlderChunk, loadNewerChunk, setupChatScrollHandler, setupMessageListeners } from "./lib/chat-history"
 import { dmBox, dmSearchBox, resetDmView, setOnDmCreated, isDmViewActive, selectNextResult, selectPrevResult } from "./components/dmview"
 
@@ -228,6 +229,10 @@ async function switchChannel(channelId: string) {
     setCurrentChannelId(channelId);
     textArea.setText("");
     syncChannelSelection(channelId);
+
+    if (isDMChannel(channelId)) {
+        addPersistentDMChannel(channelId)
+    }
 
     try {
         await loadChannelMessages(channelId);

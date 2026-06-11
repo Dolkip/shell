@@ -23,6 +23,7 @@ export interface Config {
 export interface State {
     theme: string
     currentChannelId: string
+    dmChannels: string[]
 }
 
 export let config: Config = {
@@ -36,6 +37,7 @@ export let config: Config = {
 export let state: State = {
     theme: "shell",
     currentChannelId: "",
+    dmChannels: [],
 }
 
 export let currentChannelId = ""
@@ -46,6 +48,15 @@ export function setCurrentChannelId(id: string) {
     void saveState().catch((error) => {
         console.error("Failed to save Shell state:", error)
     })
+}
+
+export function addPersistentDMChannel(channelId: string) {
+    if (!state.dmChannels.includes(channelId)) {
+        state.dmChannels = [...state.dmChannels, channelId]
+        void saveState().catch((error) => {
+            console.error("Failed to save Shell state:", error)
+        })
+    }
 }
 
 function isPlainObject(v: unknown): v is Record<string, unknown> {
@@ -119,6 +130,7 @@ export async function loadState(): Promise<void> {
     state = {
         theme: config.theme,
         currentChannelId: typeof raw.currentChannelId === "string" ? raw.currentChannelId : "",
+        dmChannels: Array.isArray(raw.dmChannels) ? raw.dmChannels.filter((id): id is string => typeof id === "string") : [],
     }
 
     currentChannelId = state.currentChannelId || config.id
