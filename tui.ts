@@ -97,33 +97,7 @@ export async function TUI() {
     })
 
     ensureGuildMenu()
-
-    const guildIds = getGuilds();
-    if (guildIds.length > 0) {
-        const currentChannel = currentChannelId
-            ? await client.channels.fetch(currentChannelId).catch(() => null)
-            : null
-
-        if (currentChannel && isDMChannel(currentChannelId)) {
-            syncGuildSelection("dm")
-            const dmChannelId = await loadGuildChannels("dm", currentChannelId);
-            if (dmChannelId) {
-                await switchChannel(dmChannelId);
-            }
-        } else {
-            const targetGuildId = currentChannel && "guildId" in currentChannel
-                ? currentChannel.guildId ?? undefined
-                : undefined
-
-            const selectedChannelId = await initGuildSelector(guildIds, targetGuildId, currentChannelId);
-            if (targetGuildId) syncGuildSelection(targetGuildId);
-            if (currentChannelId) {
-                syncChannelSelection(currentChannelId);
-            } else if (selectedChannelId) {
-                await switchChannel(selectedChannelId);
-            }
-        }
-    }
+    await restoreStartupChannel()
 
     renderer.root.add(app)
     setupMessageListeners()
@@ -159,6 +133,13 @@ export async function TUI() {
             return;
         }
 
+        if (key.ctrl && key.name === "n") {
+            if (getGuilds().length === 0 || isDmViewActive()) return
+            syncGuildSelection("dm")
+            void loadGuildChannels("dm").then(() => showDmView())
+            return
+        }
+
         if (renderer.root.findDescendantById("channel-select")?.focused) return;
 
         if (key.name === "pageup" || (key.alt && key.name === "up")) {
@@ -168,18 +149,7 @@ export async function TUI() {
 
         if (key.name === "pagedown" || (key.alt && key.name === "down")) {
             void loadNewerChunk();
-        }
-    });
-
-    renderer.keyInput.on("keypress", (key: any) => {
-        if (key.ctrl && key.name === "n") {
-            if (getGuilds().length === 0) return
-            if (isDmViewActive()) return
-            syncGuildSelection("dm")
-            void loadGuildChannels("dm").then(() => {
-                showDmView()
-            })
-            return
+            return;
         }
 
         if (key.name === "escape" && isDmViewActive()) {
@@ -236,4 +206,33 @@ async function switchChannel(channelId: string) {
 
     await loadChannelMessages(channelId);
     textArea.focus()
+}
+
+async function restoreStartupChannel() {
+    const guildIds = getGuilds();
+    if (guildIds.length === 0) return
+
+    const currentChannel = currentChannelId
+        ? await client.channels.fetch(currentChannelId).catch(() => null)
+        : null
+
+    if (currentChannel && isDMChannel(currentChannelId)) {
+        syncGuildSelection("dm")
+        const dmChannelId = await loadGuildChannels("dm", currentChannelId);
+        if (dmChannelId) {
+            await switchChannel(dmChannelId);
+        }
+    } else {
+        const targetGuildId = currentChannel && "guildId" in currentChannel
+            ? currentChannel.guildId ?? undefined
+            : undefined
+
+        const selectedChannelId = await initGuildSelector(guildIds, targetGuildId, currentChannelId);
+        if (targetGuildId) syncGuildSelection(targetGuildId);
+        if (currentChannelId) {
+            syncChannelSelection(currentChannelId);
+        } else if (selectedChannelId) {
+            await switchChannel(selectedChannelId);
+        }
+    }
 }

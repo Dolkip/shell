@@ -1,6 +1,6 @@
 import { BoxRenderable, TextRenderable } from "@opentui/core"
 import { chatBox } from "../components/chat"
-import { updateChannelDisplay } from "./channeldisplay"
+import { updateChannelDisplay } from "../components/channeldisplay"
 import { fetchMessages, client } from "../discord"
 import { getDMSenders } from "../discord/dms"
 import { makeMessage } from "./message"

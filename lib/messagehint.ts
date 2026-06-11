@@ -144,42 +144,27 @@ async function searchCandidates(query: string): Promise<MentionCandidate[]> {
   const lc = query.toLowerCase()
   const seen = new Set<string>()
   const results: MentionCandidate[] = []
+  const guilds = channel.isDMBased()
+    ? [...client.guilds.cache.values()]
+    : "guildId" in channel && channel.guildId
+      ? [client.guilds.cache.get(channel.guildId)].filter((g): g is NonNullable<typeof g> => g != null)
+      : []
 
-  if (channel.isDMBased()) {
-    for (const guild of client.guilds.cache.values()) {
-      for (const [, member] of guild.members.cache) {
-        if (seen.has(member.id)) continue
-        const user = member.user
-        const matchNick = member.nickname?.toLowerCase().includes(lc)
-        const matchUser = user.username.toLowerCase().includes(lc)
-        const matchDisplay = user.globalName?.toLowerCase().includes(lc)
-        if (matchNick || matchUser || matchDisplay) {
-          seen.add(member.id)
-          results.push({
-            userId: member.id,
-            username: user.username,
-            displayName: member.nickname ?? user.globalName ?? user.username,
-          })
-        }
-      }
-    }
-  } else if ("guildId" in channel && channel.guildId) {
-    const guild = client.guilds.cache.get(channel.guildId)
-    if (guild) {
-      for (const [, member] of guild.members.cache) {
-        if (seen.has(member.id)) continue
-        const user = member.user
-        const matchNick = member.nickname?.toLowerCase().includes(lc)
-        const matchUser = user.username.toLowerCase().includes(lc)
-        const matchDisplay = user.globalName?.toLowerCase().includes(lc)
-        if (matchNick || matchUser || matchDisplay) {
-          seen.add(member.id)
-          results.push({
-            userId: member.id,
-            username: user.username,
-            displayName: member.nickname ?? user.globalName ?? user.username,
-          })
-        }
+  for (const guild of guilds) {
+    for (const [, member] of guild.members.cache) {
+      if (seen.has(member.id)) continue
+      const user = member.user
+      if (
+        member.nickname?.toLowerCase().includes(lc) ||
+        user.username.toLowerCase().includes(lc) ||
+        user.globalName?.toLowerCase().includes(lc)
+      ) {
+        seen.add(member.id)
+        results.push({
+          userId: member.id,
+          username: user.username,
+          displayName: member.nickname ?? user.globalName ?? user.username,
+        })
       }
     }
   }

@@ -33,3 +33,9 @@ export const topicText = new TextRenderable(renderer, {
 channelHeader.add(guild)
 channelHeader.add(titleText)
 channelHeader.add(topicText)
+
+export function updateChannelDisplay(guildName: string, title: string, topic: string) {
+    guild.content = guildName
+    titleText.content = title
+    topicText.content = topic
+}
