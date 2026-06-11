@@ -2,6 +2,7 @@ import { BoxRenderable } from "@opentui/core"
 import { chatBox } from "../components/chat"
 import { updateChannelDisplay } from "./channeldisplay"
 import { fetchMessages, client } from "../discord"
+import { getDMSenders } from "../discord/dms"
 import { makeMessage } from "./message"
 import { config, currentChannelId } from "../config"
 import { Message } from "discord.js"
@@ -54,15 +55,21 @@ export async function loadChannelMessages(channelId: string) {
         return
     }
 
-    const guildName = "guild" in channel && channel.guild ? channel.guild.name : ""
-    const channelName = "name" in channel ? channel.name : channel.id
-    const channelTopic = (channel as any).topic ?? ""
-    updateChannelDisplay(guildName, `#${channelName}`, channelTopic)
+    if (channel.isDMBased() && !channel.partial) {
+        const sender = getDMSenders(channel)
+        updateChannelDisplay("DMs", sender, "")
+    } else {
+        const guildName = "guild" in channel && channel.guild ? channel.guild.name : ""
+        const channelName = "name" in channel ? channel.name : channel.id
+        const channelTopic = (channel as any).topic ?? ""
+        updateChannelDisplay(guildName, `#${channelName}`, channelTopic)
+    }
+    if (fetchToken !== activeFetchToken) return
 
     const messages = await fetchMessages(channelId, WINDOW_SIZE, 0, CHUNK_SIZE)
     if (fetchToken !== activeFetchToken) return
 
-    if ("guild" in channel && channel.guild) {
+    if (!channel.isDMBased() && "guild" in channel && channel.guild) {
         const authorIds = [...new Set(messages.map(m => m.author.id))]
         await Promise.allSettled(
             authorIds.map(id => channel.guild.members.fetch({ user: id }))

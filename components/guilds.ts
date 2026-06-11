@@ -18,9 +18,16 @@ export const guildMenu = new TabSelectRenderable(renderer, {
     selectedBackgroundColor: theme.select.selected,
     selectedTextColor: theme.select.selectedText,
     selectedDescriptionColor: theme.select.selectedDescription,
-    options: guildData.map(g => ({
-        name: g.name,
-        description: "",
-        value: g.id,
-    })),
+    options: [
+        {
+            name: "Direct",
+            description: "",
+            value: "dm",
+        },
+        ...guildData.map(g => ({
+            name: g.name,
+            description: "",
+            value: g.id,
+        })),
+    ],
 })
