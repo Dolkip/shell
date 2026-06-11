@@ -10,10 +10,6 @@ export async function getDMChannels() {
         .filter((ch) => ch.isDMBased() && !ch.partial)
 }
 
-export function getDMSender(dmChannel: DMChannel): string {
-    return dmChannel.recipient?.username ?? dmChannel.recipientId ?? "Unknown"
-}
-
 export function getDMSenders(channel: Channel): string {
     if (!channel.isDMBased()) return "Unknown"
     if (channel.type === ChannelType.GroupDM) {
@@ -24,6 +20,36 @@ export function getDMSenders(channel: Channel): string {
     }
     const dm = channel as DMChannel
     return dm.recipient?.username ?? dm.recipientId ?? "Unknown"
+}
+
+export function findExistingDM(userId: string): DMChannel | undefined {
+    return Array.from(client.channels.cache.values()).find(
+        (ch): ch is DMChannel =>
+            ch.isDMBased() && !ch.partial && ch.type === ChannelType.DM
+            && (ch as DMChannel).recipientId === userId
+    )
+}
+
+export function getDMRecipientStatus(channel: Channel): string {
+    if (!channel.isDMBased() || channel.type !== ChannelType.DM) return ""
+    const dm = channel as DMChannel
+    if (!dm.recipient) return ""
+    for (const guild of client.guilds.cache.values()) {
+        const member = guild.members.cache.get(dm.recipient.id)
+        if (member?.presence?.status) {
+            const s = member.presence.status
+            if (s === "online") return "● online"
+            if (s === "idle") return "◐ idle"
+            if (s === "dnd") return "● do not disturb"
+            if (s === "offline") return "○ offline"
+        }
+    }
+    return ""
+}
+
+export function getDMChannelLastActivity(channel: Channel): number {
+    if (!channel.isDMBased()) return 0
+    return channel.lastMessage?.createdTimestamp ?? channel.createdTimestamp ?? 0
 }
 
 export function isDMChannel(channelId: string): boolean {

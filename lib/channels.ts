@@ -1,7 +1,8 @@
 import { SelectRenderable, SelectRenderableEvents, type KeyEvent, type SelectOption } from "@opentui/core";
+import { ChannelType } from "discord.js"
 import { renderer } from "../renderer";
 import { fetchGuild, getGuildChannels } from "../discord";
-import { getDMChannels, getDMSenders } from "../discord/dms";
+import { getDMChannels, getDMSenders, getDMChannelLastActivity } from "../discord/dms";
 import { theme } from "../theme";
 import { channelMenu } from "../components/channels"
 
@@ -46,12 +47,18 @@ export async function loadDMChannels(preferredChannelId?: string): Promise<strin
     const dmChannels = await getDMChannels();
 
     channelOptions = dmChannels
-        .map(dm => ({
+        .map((dm) => ({
             name: getDMSenders(dm),
             description: dm.id,
             value: dm.id,
         }))
-        .sort((a, b) => a.name.localeCompare(b.name));
+        .sort((a, b) => {
+            const aCh = dmChannels.find((ch) => ch.id === a.value)
+            const bCh = dmChannels.find((ch) => ch.id === b.value)
+            const aLast = aCh ? getDMChannelLastActivity(aCh) : 0
+            const bLast = bCh ? getDMChannelLastActivity(bCh) : 0
+            return bLast - aLast
+        });
 
     const newDmOption: ChannelOption = {
         name: "+ New DM",
@@ -118,7 +125,7 @@ export async function loadGuildChannels(guildId: string, preferredChannelId?: st
     const channels = await getGuildChannels(guild);
 
     channelOptions = channels
-        .filter(ch => ch.isTextBased())
+        .filter(ch => ch.type === ChannelType.GuildText || ch.type === ChannelType.GuildAnnouncement)
         .map(ch => ({
             name: "#" + ch.name,
             description: ch.id,

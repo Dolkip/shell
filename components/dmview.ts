@@ -1,7 +1,7 @@
 import { BoxRenderable, TextRenderable, InputRenderable, SelectRenderable, SelectRenderableEvents, InputRenderableEvents, type SelectOption } from "@opentui/core"
 import { renderer } from "../renderer"
 import { theme } from "../theme"
-import { searchUsers, openDM } from "../discord/dms"
+import { searchUsers, openDM, findExistingDM } from "../discord/dms"
 
 const dmResults = new BoxRenderable(renderer, {
     id: "dm-results",
@@ -56,18 +56,35 @@ dmSearchBox.on(InputRenderableEvents.ENTER, async (value: string) => {
     if (resultsSelect && resultsSelect.getSelectedOption()) {
         const option = resultsSelect.getSelectedOption()
         if (option && typeof option.value === "string") {
+            const existing = findExistingDM(option.value)
+            const channelId = existing?.id
+            if (channelId) {
+                clearResults()
+                onDmCreated?.(channelId)
+                return
+            }
             try {
                 const dm = await openDM(option.value)
                 clearResults()
                 onDmCreated?.(dm.id)
-            } catch {}
+            } catch {
+                clearResults()
+            }
         }
     } else {
+        const existing = findExistingDM(value.trim())
+        if (existing?.id) {
+            clearResults()
+            onDmCreated?.(existing.id)
+            return
+        }
         try {
             const dm = await openDM(value.trim())
             clearResults()
             onDmCreated?.(dm.id)
-        } catch {}
+        } catch {
+            clearResults()
+        }
     }
 })
 
@@ -92,18 +109,21 @@ async function updateResults(users: Array<{ userId: string; username: string; di
 
     if (users.length === 0) {
         const hint = new TextRenderable(renderer, {
-            content: "No users found in shared guilds. Paste a user ID and press Enter to DM anyone.",
+            content: "No such users found in cache. Paste a user ID and press Enter to DM anyone.",
             fg: theme.dim,
         })
         dmResults.add(hint)
         return
     }
 
-    const options: SelectOption[] = users.map((u) => ({
-        name: `${u.displayName}`,
-        description: `@${u.username}`,
-        value: u.userId,
-    }))
+    const options: SelectOption[] = users.map((u) => {
+        const existing = findExistingDM(u.userId)
+        return {
+            name: existing ? `◆ ${u.displayName}` : `${u.displayName}`,
+            description: existing ? `@${u.username} (DM exists)` : `@${u.username}`,
+            value: u.userId,
+        }
+    })
 
     resultsSelect = new SelectRenderable(renderer, {
         id: "dm-user-select",
@@ -124,11 +144,20 @@ async function updateResults(users: Array<{ userId: string; username: string; di
 
     resultsSelect.on(SelectRenderableEvents.ITEM_SELECTED, async (_index: number, option: SelectOption) => {
         if (typeof option.value === "string") {
+            const existing = findExistingDM(option.value)
+            const channelId = existing?.id
+            if (channelId) {
+                clearResults()
+                onDmCreated?.(channelId)
+                return
+            }
             try {
                 const dm = await openDM(option.value)
                 clearResults()
                 onDmCreated?.(dm.id)
-            } catch {}
+            } catch {
+                clearResults()
+            }
         }
     })
 

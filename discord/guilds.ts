@@ -21,7 +21,7 @@ export function getGuilds() {
 
 export async function getGuildChannels(guild: Guild): Promise<NonThreadGuildBasedChannel[]> {
   const channels = await guild.channels.fetch()
-  return Array.from(channels.values()).filter(
-    (ch): ch is NonThreadGuildBasedChannel => ch !== null
-  )
+  return Array.from(channels.values())
+    .filter((ch): ch is NonThreadGuildBasedChannel => ch !== null)
+    .sort((a, b) => a.position - b.position)
 }

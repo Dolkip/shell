@@ -1,8 +1,8 @@
 import { BoxRenderable } from "@opentui/core"
-import { TabSelectRenderableEvents, type TabSelectOption } from "@opentui/core"
+import type { TabSelectOption } from "@opentui/core"
 import { renderer } from "./renderer"
 import { banner } from "./components/banner"
-import { guildMenu } from "./components/guilds"
+import { guildMenuContainer, setOnGuildItemSelected, refreshGuilds, ensureGuildMenu } from "./components/guilds"
 import { channelMenu } from "./components/channels"
 import { channelHeader } from "./components/channeldisplay"
 import { chatBox } from "./components/chat"
@@ -49,7 +49,7 @@ export async function TUI() {
     })
 
     app.add(banner)
-    app.add(guildMenu)
+    app.add(guildMenuContainer)
     app.add(main)
 
     if (!currentChannelId && config.id) {
@@ -74,6 +74,28 @@ export async function TUI() {
         }
         void switchChannel(channelId)
     })
+
+    setOnGuildItemSelected((_index: number, option: TabSelectOption) => {
+        if (typeof option.value !== "string") return
+
+        if (option.value === "dm") {
+            hideDmView()
+            void loadGuildChannels("dm").then(() => {
+                showDmView()
+            })
+            return
+        }
+
+        hideDmView()
+        void loadGuildChannels(option.value)
+            .then((channelId) => {
+                if (channelId) {
+                    selectChannel(channelId)
+                }
+            })
+    })
+
+    ensureGuildMenu()
 
     const guildIds = getGuilds();
     if (guildIds.length > 0) {
@@ -102,26 +124,6 @@ export async function TUI() {
         }
     }
 
-    guildMenu.on(TabSelectRenderableEvents.ITEM_SELECTED, (_index: number, option: TabSelectOption) => {
-        if (typeof option.value !== "string") return
-
-        if (option.value === "dm") {
-            hideDmView()
-            void loadGuildChannels("dm").then(() => {
-                showDmView()
-            })
-            return
-        }
-
-        hideDmView()
-        void loadGuildChannels(option.value)
-            .then((channelId) => {
-                if (channelId) {
-                    selectChannel(channelId)
-                }
-            })
-    })
-
     renderer.root.add(app)
     setupMessageListeners()
     setupChatScrollHandler()
@@ -140,6 +142,14 @@ export async function TUI() {
         if (channel.isDMBased()) {
             void refreshDMChannels()
         }
+    })
+
+    client.on("guildCreate", () => {
+        refreshGuilds()
+    })
+
+    client.on("guildDelete", () => {
+        refreshGuilds()
     })
 
     renderer.keyInput.on("keypress", (key: any) => {

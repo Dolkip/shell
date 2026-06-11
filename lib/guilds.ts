@@ -1,8 +1,10 @@
-import { guildMenu } from "../components/guilds"
+import { getGuildMenu } from "../components/guilds"
 
 export function syncGuildSelection(guildId: string) {
-    const index = guildMenu.options.findIndex((option) => option.value === guildId)
+    const menu = getGuildMenu()
+    if (!menu) return
+    const index = menu.options.findIndex((option: any) => option.value === guildId)
     if (index >= 0) {
-        guildMenu.setSelectedIndex(index)
+        menu.setSelectedIndex(index)
     }
 }
