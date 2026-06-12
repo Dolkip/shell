@@ -25,7 +25,9 @@ No test framework.
 - TUI (`tui.ts`) is imported dynamically after login — module-level code in components runs only after Discord is ready.
 
 ## Key bindings (runtime)
-- `Ctrl+Tab` — focus guild/channel selector; `Ctrl+Tab` again to dismiss.
+- `Tab` / `Shift+Tab` — cycle focus between guild list, channel list, chat, and message input.
+- `F6` — jump to next focus section.
+- `Ctrl+Tab` — focus guild/channel selector.
 - `PgUp` / `Alt+Up` — load older message chunks.
 - `PgDn` / `Alt+Down` — load newer message chunks.
 - `Ctrl+S` — send message from text area.

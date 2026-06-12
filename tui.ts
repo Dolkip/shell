@@ -15,6 +15,7 @@ import { isDMChannel } from "./discord/dms"
 
 import { initializeChat, loadChannelMessages, loadOlderChunk, loadNewerChunk, setupChatScrollHandler, setupMessageListeners } from "./lib/chat-history"
 import { dmBox, dmSearchBox, resetDmView, setOnDmCreated, isDmViewActive, selectNextResult, selectPrevResult } from "./components/dmview"
+import { focusManager, activateTabNavigation } from "./lib/focus"
 
 const contentArea = new BoxRenderable(renderer, {
     id: "content-area",
@@ -102,7 +103,44 @@ export async function TUI() {
     renderer.root.add(app)
     setupMessageListeners()
     setupChatScrollHandler()
-    textArea.focus()
+
+    chatBox.focusable = true
+
+    focusManager.register({
+      id: "guild",
+      focus: () => renderer.root.findDescendantById("guild-menu")?.focus(),
+      blur: () => renderer.root.findDescendantById("guild-menu")?.blur(),
+    })
+
+    focusManager.register({
+      id: "channels",
+      focus: () => renderer.root.findDescendantById("channel-select")?.focus(),
+      blur: () => renderer.root.findDescendantById("channel-select")?.blur(),
+    })
+
+    focusManager.register({
+      id: "chat",
+      focus: () => chatBox.focus(),
+      blur: () => chatBox.blur(),
+      isActive: () => !dmViewActive,
+    })
+
+    focusManager.register({
+      id: "input",
+      focus: () => textArea.focus(),
+      blur: () => textArea.blur(),
+      isActive: () => !dmViewActive,
+    })
+
+    focusManager.register({
+      id: "dm-search",
+      focus: () => dmSearchBox.focus(),
+      blur: () => dmSearchBox.blur(),
+      isActive: () => dmViewActive,
+    })
+
+    activateTabNavigation()
+    focusManager.focusById("input")
     setupGuildKeyHandler()
 
     setOnDmCreated(async (channelId: string) => {
@@ -181,7 +219,7 @@ function showDmView() {
     dmViewActive = true
     main.remove(contentArea.id)
     main.add(dmBox)
-    dmSearchBox.focus()
+    focusManager.focusById("dm-search")
 }
 
 function hideDmView() {
@@ -190,7 +228,7 @@ function hideDmView() {
     resetDmView()
     main.remove(dmBox.id)
     main.add(contentArea)
-    textArea.focus()
+    focusManager.focusById("input")
 }
 
 async function switchChannel(channelId: string) {
