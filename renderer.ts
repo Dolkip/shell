@@ -15,7 +15,7 @@ export const renderer = await createCliRenderer({
 })
 
 renderer.keyInput.on("keypress", (key) => {
-  if (key.name === "`") {
+  if (key.name === "/") {
     renderer.console.toggle()
   }
 })
