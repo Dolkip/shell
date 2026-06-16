@@ -72,16 +72,18 @@ dmSearchBox.on(InputRenderableEvents.ENTER, async (value: string) => {
 
     const trimmed = value.trim()
 
+    // If input is a snowflake ID, use it directly regardless of resultsSelect
+    if (/^\d{17,19}$/.test(trimmed)) {
+        await openDmForUser(trimmed)
+        return
+    }
+
+    // Otherwise, use the selected search result if available
     if (resultsSelect) {
         const option = resultsSelect.getSelectedOption() ?? resultsSelect.options[0]
         if (option && typeof option.value === "string") {
             await openDmForUser(option.value)
-            return
         }
-    }
-
-    if (/^\d{17,19}$/.test(trimmed)) {
-        await openDmForUser(trimmed)
     }
 })
 

@@ -30,6 +30,7 @@ export async function makeMessage(message: Message) {
     width: "100%",
     backgroundColor: theme.message.base,
     marginBottom: 0,
+    padding: 0,
     onMouseOver: () => {
       container.backgroundColor = theme.message.hover
     },
@@ -54,7 +55,7 @@ export async function makeMessage(message: Message) {
 
       const replyChar = new TextRenderable(renderer, {
         fg: theme.dim,
-        content: "╭─",
+        content: "┌──",
         flexShrink: 0,
       });
 
@@ -84,15 +85,15 @@ export async function makeMessage(message: Message) {
       container.add(
         new TextRenderable(renderer, {
           fg: theme.dim,
-          content: "╭─ [unavailable message]",
+          content: "┌── [unavailable message]",
         })
       );
     }
   }
 
-  const messageRow = new BoxRenderable(renderer, {
-    flexDirection: "row",
+  const metaRow = new BoxRenderable(renderer, {
     width: "100%",
+    flexDirection: "row",
   });
 
   const colour = getColour(
@@ -100,13 +101,13 @@ export async function makeMessage(message: Message) {
     theme.text
   );
 
-  const timestampText = new TextRenderable(renderer, {
-    content: message.createdAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) + " ",
+  const timestamp = new TextRenderable(renderer, {
+    content: message.createdAt.toLocaleTimeString([], { month: "2-digit", day: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" }) + " ",
     fg: theme.dim,
     flexShrink: 0,
   });
 
-  const userText = new TextRenderable(renderer, {
+  const user = new TextRenderable(renderer, {
     content: message.author.username + "  ",
     fg: colour,
     flexShrink: 0,
@@ -124,13 +125,13 @@ export async function makeMessage(message: Message) {
     syntaxStyle,
     width: "100%",
   });
-
-  contentBox.add(messageText)
-  messageRow.add(timestampText);
-  messageRow.add(userText);
-  messageRow.add(contentBox);
-
-  container.add(messageRow);
+  
+  //the buildy
+  metaRow.add(user);
+  metaRow.add(timestamp);
+  contentBox.add(metaRow);
+  contentBox.add(messageText);
+  container.add(contentBox);
 
   return container;
 }
