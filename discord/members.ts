@@ -12,3 +12,7 @@ export function getColour(member?: GuildMember, defaultColour: string | RGBA = "
   return role?.hexColor ?? defaultColour
 }
 
+export function getName(member: GuildMember): string {
+  if (!member) return "unknown"
+  return member.displayName
+}

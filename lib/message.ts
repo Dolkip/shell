@@ -1,8 +1,8 @@
 import { TextRenderable, BoxRenderable, MarkdownRenderable, SyntaxStyle, TextAttributes } from "@opentui/core";
 import { renderer } from "../renderer";
 import { theme } from "../theme";
-import { Message } from "discord.js";
-import { getColour } from "../discord"
+import { Message, GuildMember } from "discord.js";
+import { getColour, getName } from "../discord"
 
 const syntaxStyle = SyntaxStyle.fromStyles({
   "markup.heading": { fg: theme.markdown.heading, bold: true },
@@ -75,6 +75,7 @@ export async function makeMessage(message: Message) {
         fg: theme.dim,
         content: repliedTo.content || "[attachment]",
         syntaxStyle,
+        wrap: "word"
       });
 
       reply.add(replyChar);
@@ -109,11 +110,17 @@ export async function makeMessage(message: Message) {
     attributes: TextAttributes.ITALIC
   });
 
-  const user = new TextRenderable(renderer, {
-    content: message.author.username + "  ",
+  const userDisplay = new TextRenderable(renderer, {
+    content: getName(message.member as GuildMember) + " ",
     fg: colour,
     flexShrink: 0,
     attributes: TextAttributes.BOLD
+  });
+
+  const userName = new TextRenderable(renderer, {
+    content: message.author.username + " ",
+    fg: colour,
+    flexShrink: 0,
   });
 
   const contentBox = new BoxRenderable(renderer, {
@@ -130,11 +137,12 @@ export async function makeMessage(message: Message) {
   });
   
   //the buildy
-  metaRow.add(user);
+  metaRow.add(userDisplay);
+  metaRow.add(userName);
   metaRow.add(timestamp);
   contentBox.add(metaRow);
   contentBox.add(messageText);
   container.add(contentBox);
-
+  
   return container;
 }
