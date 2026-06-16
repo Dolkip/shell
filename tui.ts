@@ -3,8 +3,8 @@ import { renderer } from "./renderer"
 import { chatBox } from "./components/chat"
 import { textArea } from "./components/messagebox"
 import { dmBox, dmSearchBox, selectNextResult, selectPrevResult } from "./components/dmview"
-import { userListBox, refreshUserList } from "./components/userlist"
 import { config, currentChannelId, setCurrentChannelId, addPersistentDMChannel } from "./config"
+import { channelBox, hideUserList, toggleUserList, refreshUserList, userListVisible } from "./components/channelbox"
 import { client } from "./discord/client"
 import { getGuilds } from "./discord/guilds"
 import { isDMChannel } from "./discord/dms"
@@ -14,7 +14,7 @@ import { initializeChat, loadChannelMessages, setupMessageListeners, setupChatSc
 import { syncGuildSelection, ensureGuildMenu, refreshGuilds, setOnGuildItemSelected } from "./lib/guilds"
 import { focusManager, activateTabNavigation } from "./lib/focus"
 import { setupKeybinds } from "./lib/keybinds"
-import { buildApp, main, contentArea } from "./lib/layout"
+import { buildApp, main } from "./lib/layout"
 
 export async function TUI() {
   const app = buildApp()
@@ -108,7 +108,7 @@ export async function TUI() {
   })
   client.on("guildCreate", () => refreshGuilds())
   client.on("guildDelete", () => refreshGuilds())
-  client.on("presenceUpdate", () => { if (userListVisible) refreshUserList() })
+  client.on("presenceUpdate", () => refreshUserList())
 }
 
 let dmViewActive = false
@@ -117,7 +117,7 @@ function showDmView() {
   if (dmViewActive) return
   dmViewActive = true
   hideUserList()
-  main.remove(contentArea.id)
+  main.remove(channelBox.id)
   main.add(dmBox)
   focusManager.focusById("dm-search")
 }
@@ -127,31 +127,13 @@ function hideDmView() {
   dmViewActive = false
   dmSearchBox.value = ""
   main.remove(dmBox.id)
-  main.add(contentArea)
+  main.add(channelBox)
   focusManager.focusById("input")
-}
-
-let userListVisible = false
-
-function showUserList() {
-  if (userListVisible) return
-  userListVisible = true
-  refreshUserList()
-  main.add(userListBox)
-}
-
-function hideUserList() {
-  if (!userListVisible) return
-  userListVisible = false
-  main.remove(userListBox.id)
-}
-
-function toggleUserList() {
-  userListVisible ? hideUserList() : showUserList()
 }
 
 async function switchChannel(channelId: string) {
   if (channelId === currentChannelId) return
+  hideUserList()
   setCurrentChannelId(channelId)
   textArea.setText("")
   syncChannelSelection(channelId)

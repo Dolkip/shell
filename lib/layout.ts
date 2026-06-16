@@ -3,21 +3,7 @@ import { renderer } from "../renderer"
 import { banner } from "../components/banner"
 import { guildMenuContainer } from "../components/guilds"
 import { channelMenu } from "../components/channels"
-import { channelHeader } from "../components/channeldisplay"
-import { chatBox } from "../components/chat"
-import { messageBox } from "../components/messagebox"
-
-export const contentArea = new BoxRenderable(renderer, {
-  id: "content-area",
-  flexGrow: 1,
-  flexShrink: 1,
-  minWidth: 0,
-  flexDirection: "column",
-})
-
-contentArea.add(channelHeader)
-contentArea.add(chatBox)
-contentArea.add(messageBox)
+import { channelBox } from "../components/channelbox"
 
 export const main = new BoxRenderable(renderer, {
   id: "main",
@@ -30,7 +16,7 @@ export const main = new BoxRenderable(renderer, {
 })
 
 main.add(channelMenu)
-main.add(contentArea)
+main.add(channelBox)
 
 export function buildApp(): BoxRenderable {
   const app = new BoxRenderable(renderer, {
