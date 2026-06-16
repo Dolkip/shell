@@ -1,4 +1,4 @@
-import { TextRenderable, BoxRenderable, MarkdownRenderable, SyntaxStyle } from "@opentui/core";
+import { TextRenderable, BoxRenderable, MarkdownRenderable, SyntaxStyle, TextAttributes } from "@opentui/core";
 import { renderer } from "../renderer";
 import { theme } from "../theme";
 import { Message } from "discord.js";
@@ -66,8 +66,9 @@ export async function makeMessage(message: Message) {
 
       const replyUser = new TextRenderable(renderer, {
         fg: replyColour,
-        content: repliedTo.author.username + ": ",
+        content: repliedTo.author.username + " ",
         flexShrink: 0,
+        attributes: TextAttributes.BOLD
       });
 
       const replyText = new MarkdownRenderable(renderer, {
@@ -105,12 +106,14 @@ export async function makeMessage(message: Message) {
     content: message.createdAt.toLocaleTimeString([], { month: "2-digit", day: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" }) + " ",
     fg: theme.dim,
     flexShrink: 0,
+    attributes: TextAttributes.ITALIC
   });
 
   const user = new TextRenderable(renderer, {
     content: message.author.username + "  ",
     fg: colour,
     flexShrink: 0,
+    attributes: TextAttributes.BOLD
   });
 
   const contentBox = new BoxRenderable(renderer, {
