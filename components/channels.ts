@@ -5,7 +5,6 @@ export const channelMenu = new BoxRenderable(renderer, {
     id: "channel-menu",
     flexDirection: "column",
     width: 35,
-    flexGrow: 1,
-    flexShrink: 1,
+    flexShrink: 0,
     minHeight: 0,
 })

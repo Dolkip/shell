@@ -15,12 +15,14 @@ import { isDMChannel } from "./discord/dms"
 
 import { initializeChat, loadChannelMessages, loadOlderChunk, loadNewerChunk, setupChatScrollHandler, setupMessageListeners } from "./lib/chat-history"
 import { dmBox, dmSearchBox, resetDmView, setOnDmCreated, isDmViewActive, selectNextResult, selectPrevResult } from "./components/dmview"
+import { userListBox, refreshUserList } from "./components/userlist"
 import { focusManager, activateTabNavigation } from "./lib/focus"
 
 const contentArea = new BoxRenderable(renderer, {
     id: "content-area",
-    width: "100%",
     flexGrow: 1,
+    flexShrink: 1,
+    minWidth: 0,
     flexDirection: "column",
 })
 
@@ -82,6 +84,7 @@ export async function TUI() {
 
         if (option.value === "dm") {
             hideDmView()
+            hideUserList()
             void loadGuildChannels("dm").then(() => {
                 showDmView()
             })
@@ -89,6 +92,7 @@ export async function TUI() {
         }
 
         hideDmView()
+        hideUserList()
         void loadGuildChannels(option.value)
             .then((channelId) => {
                 if (channelId) {
@@ -165,6 +169,10 @@ export async function TUI() {
         refreshGuilds()
     })
 
+    client.on("presenceUpdate", () => {
+        if (userListVisible) refreshUserList()
+    })
+
     renderer.keyInput.on("keypress", (key: any) => {
         if (key.ctrl && key.name === "tab") {
             setGuildSelectorFocused(true);
@@ -175,6 +183,11 @@ export async function TUI() {
             if (getGuilds().length === 0 || isDmViewActive()) return
             syncGuildSelection("dm")
             void loadGuildChannels("dm").then(() => showDmView())
+            return
+        }
+
+        if (key.ctrl && key.name === "u") {
+            toggleUserList()
             return
         }
 
@@ -190,13 +203,19 @@ export async function TUI() {
             return;
         }
 
-        if (key.name === "escape" && isDmViewActive()) {
-            if (renderer.root.findDescendantById("dm-user-select")?.focused) {
-                dmSearchBox.focus()
+        if (key.name === "escape") {
+            if (userListVisible) {
+                hideUserList()
                 return
             }
-            hideDmView()
-            return
+            if (isDmViewActive()) {
+                if (renderer.root.findDescendantById("dm-user-select")?.focused) {
+                    dmSearchBox.focus()
+                    return
+                }
+                hideDmView()
+                return
+            }
         }
 
         if (isDmViewActive() && dmSearchBox.focused) {
@@ -217,6 +236,7 @@ let dmViewActive = false
 function showDmView() {
     if (dmViewActive) return
     dmViewActive = true
+    hideUserList()
     main.remove(contentArea.id)
     main.add(dmBox)
     focusManager.focusById("dm-search")
@@ -229,6 +249,29 @@ function hideDmView() {
     main.remove(dmBox.id)
     main.add(contentArea)
     focusManager.focusById("input")
+}
+
+let userListVisible = false
+
+function showUserList() {
+    if (userListVisible) return
+    userListVisible = true
+    refreshUserList()
+    main.add(userListBox)
+}
+
+function hideUserList() {
+    if (!userListVisible) return
+    userListVisible = false
+    main.remove(userListBox.id)
+}
+
+function toggleUserList() {
+    if (userListVisible) {
+        hideUserList()
+    } else {
+        showUserList()
+    }
 }
 
 async function switchChannel(channelId: string) {
