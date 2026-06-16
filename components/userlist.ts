@@ -63,6 +63,7 @@ export function refreshUserList() {
       height: 1,
       flexDirection: "row",
       alignItems: "center",
+      backgroundColor: theme.panel.base,
     })
 
     const dot = new TextRenderable(renderer, {
