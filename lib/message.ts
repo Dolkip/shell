@@ -23,6 +23,28 @@ const syntaxStyle = SyntaxStyle.fromStyles({
   default: { fg: theme.text },
 })
 
+function resolveContent(message: Message): string {
+  let content = message.content
+
+  for (const [, user] of message.mentions.users) {
+    const name = `@${user.displayName}`
+    content = content.replaceAll(`<@${user.id}>`, `**${name}**`)
+    content = content.replaceAll(`<@!${user.id}>`, `**${name}**`)
+  }
+
+  for (const [, role] of message.mentions.roles) {
+    content = content.replaceAll(`<@&${role.id}>`, `**@${role.name}**`)
+  }
+
+  for (const [, channel] of message.mentions.channels) {
+    if ("name" in channel) {
+      content = content.replaceAll(`<#${channel.id}>`, `**#${(channel as { name: string }).name}**`)
+    }
+  }
+
+  return content
+}
+
 export async function makeMessage(message: Message) {
   const container = new BoxRenderable(renderer, {
     id: message.id,
@@ -73,7 +95,7 @@ export async function makeMessage(message: Message) {
 
       const replyText = new MarkdownRenderable(renderer, {
         fg: theme.dim,
-        content: repliedTo.content || "[attachment]",
+        content: resolveContent(repliedTo) || "[attachment]",
         syntaxStyle,
       });
 
@@ -129,7 +151,7 @@ export async function makeMessage(message: Message) {
   });
 
   const messageText = new MarkdownRenderable(renderer, {
-    content: message.content,
+    content: resolveContent(message),
     fg: theme.message.text,
     syntaxStyle,
     width: "100%",
