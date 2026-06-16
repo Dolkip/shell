@@ -1,15 +1,10 @@
 import { TextareaRenderable, SyntaxStyle, type KeyEvent, type SelectOption } from "@opentui/core"
 import { renderer } from "../renderer"
 import { theme } from "../theme"
-import { client } from "../discord"
+import { client } from "../discord/client"
 import { currentChannelId } from "../config"
+import { searchMembers } from "./search"
 import { updateHint, clearHint, isHintVisible, selectNextHint, selectPrevHint, hintSelect } from "../components/messagehint"
-
-interface MentionCandidate {
-  userId: string
-  username: string
-  displayName: string
-}
 
 interface HintTrigger {
   startPos: number
@@ -124,7 +119,14 @@ function detectTrigger(text: string, cursorPos: number): HintTrigger | null {
 async function fetchAndShowOptions(query: string): Promise<void> {
   if (!currentChannelId) return
 
-  const candidates = await searchCandidates(query)
+  const channel = client.channels.cache.get(currentChannelId)
+  if (!channel) return
+
+  const guildId = !channel.isDMBased() && "guildId" in channel
+    ? (channel.guildId ?? undefined)
+    : undefined
+
+  const candidates = searchMembers(query, guildId)
 
   const options: SelectOption[] = candidates.map((c) => ({
     name: c.displayName,
@@ -133,43 +135,6 @@ async function fetchAndShowOptions(query: string): Promise<void> {
   }))
 
   updateHint(options)
-}
-
-async function searchCandidates(query: string): Promise<MentionCandidate[]> {
-  if (!currentChannelId) return []
-
-  const channel = client.channels.cache.get(currentChannelId)
-  if (!channel) return []
-
-  const lc = query.toLowerCase()
-  const seen = new Set<string>()
-  const results: MentionCandidate[] = []
-  const guilds = channel.isDMBased()
-    ? [...client.guilds.cache.values()]
-    : "guildId" in channel && channel.guildId
-      ? [client.guilds.cache.get(channel.guildId)].filter((g): g is NonNullable<typeof g> => g != null)
-      : []
-
-  for (const guild of guilds) {
-    for (const [, member] of guild.members.cache) {
-      if (seen.has(member.id)) continue
-      const user = member.user
-      if (
-        member.nickname?.toLowerCase().includes(lc) ||
-        user.username.toLowerCase().includes(lc) ||
-        user.globalName?.toLowerCase().includes(lc)
-      ) {
-        seen.add(member.id)
-        results.push({
-          userId: member.id,
-          username: user.username,
-          displayName: member.nickname ?? user.globalName ?? user.username,
-        })
-      }
-    }
-  }
-
-  return results.sort((a, b) => a.displayName.localeCompare(b.displayName))
 }
 
 function confirmMention(): void {

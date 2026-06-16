@@ -1,6 +1,6 @@
 import { ConsolePosition, createCliRenderer } from "@opentui/core";
 import { theme } from "./theme";
-import { client } from "./discord";
+import { client } from "./discord/client";
 
 export const renderer = await createCliRenderer({
   exitOnCtrlC: true,

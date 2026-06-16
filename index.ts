@@ -1,4 +1,4 @@
-import { client } from "./discord"
+import { client } from "./discord/client"
 import kleur from "kleur"
 import { ensureDirectories, loadConfig, loadState, saveState, state, config } from "./config"
 import { restoreDMChannels } from "./discord/dms"

@@ -1,7 +1,7 @@
 import { BoxRenderable, TextRenderable, ScrollBoxRenderable } from "@opentui/core"
 import { renderer } from "../renderer"
 import { theme } from "../theme"
-import { client } from "../discord"
+import { client } from "../discord/client"
 import { getCurrentGuildId } from "../lib/channels"
 import { getColour } from "../discord/members"
 

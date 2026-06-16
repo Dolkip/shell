@@ -1,5 +1,0 @@
-export { client } from "./discord/client"
-export { fetchGuild, getGuilds, getGuildChannels } from "./discord/guilds"
-export { fetchMessages, sendMessage } from "./discord/messages"
-export { getColour, getName } from "./discord/members"
-export { openDM, getDMSenders, isDMChannel, searchUsers } from "./discord/dms"

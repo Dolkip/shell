@@ -1,7 +1,8 @@
 import { BoxRenderable, TextRenderable, InputRenderable, SelectRenderable, SelectRenderableEvents, InputRenderableEvents, type SelectOption } from "@opentui/core"
 import { renderer } from "../renderer"
 import { theme } from "../theme"
-import { searchUsers, openDM, findExistingDM } from "../discord/dms"
+import { searchUsers, openDmForUser } from "../lib/dm"
+import { findExistingDM } from "../discord/dms"
 
 const dmResults = new BoxRenderable(renderer, {
     id: "dm-results",
@@ -12,11 +13,6 @@ const dmResults = new BoxRenderable(renderer, {
 
 let resultsSelect: SelectRenderable | null = null
 let searchTimeout: ReturnType<typeof setTimeout> | null = null
-let onDmCreated: ((channelId: string) => void) | null = null
-
-export function setOnDmCreated(handler: (channelId: string) => void) {
-    onDmCreated = handler
-}
 
 export const dmBox = new BoxRenderable(renderer, {
     id: "dm-box",
@@ -51,37 +47,21 @@ dmSearchBox.on(InputRenderableEvents.INPUT, (value: string) => {
     }, 200)
 })
 
-async function openDmForUser(userId: string) {
-    const existing = findExistingDM(userId)
-    if (existing?.id) {
-        clearResults()
-        onDmCreated?.(existing.id)
-        return
-    }
-    try {
-        const dm = await openDM(userId)
-        clearResults()
-        onDmCreated?.(dm.id)
-    } catch {
-        clearResults()
-    }
-}
-
 dmSearchBox.on(InputRenderableEvents.ENTER, async (value: string) => {
     if (!value.trim()) return
 
     const trimmed = value.trim()
 
-    // If input is a snowflake ID, use it directly regardless of resultsSelect
     if (/^\d{17,19}$/.test(trimmed)) {
+        clearResults()
         await openDmForUser(trimmed)
         return
     }
 
-    // Otherwise, use the selected search result if available
     if (resultsSelect) {
         const option = resultsSelect.getSelectedOption() ?? resultsSelect.options[0]
         if (option && typeof option.value === "string") {
+            clearResults()
             await openDmForUser(option.value)
         }
     }
@@ -143,6 +123,7 @@ async function updateResults(users: Array<{ userId: string; username: string; di
 
     resultsSelect.on(SelectRenderableEvents.ITEM_SELECTED, async (_index: number, option: SelectOption) => {
         if (typeof option.value === "string") {
+            clearResults()
             await openDmForUser(option.value)
         }
     })

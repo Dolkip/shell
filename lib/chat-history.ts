@@ -1,7 +1,8 @@
 import { BoxRenderable, TextRenderable } from "@opentui/core"
 import { chatBox } from "../components/chat"
 import { updateChannelDisplay } from "../components/channeldisplay"
-import { fetchMessages, client } from "../discord"
+import { client } from "../discord/client"
+import { fetchMessages } from "../discord/messages"
 import { getDMSenders } from "../discord/dms"
 import { makeMessage } from "./message"
 import { config, currentChannelId } from "../config"
@@ -17,16 +18,9 @@ let isHistoryLoading = false
 let activeFetchToken = 0
 let messageNodes: BoxRenderable[] = []
 
-const LOAD_TIMEOUT = 30_000
+import { withTimeout } from "./util"
 
-function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
-    return Promise.race([
-        promise,
-        new Promise<T>((_, reject) =>
-            setTimeout(() => reject(new Error(`Timed out after ${ms / 1000}s`)), ms)
-        ),
-    ])
-}
+const LOAD_TIMEOUT = 30_000
 
 function showLoading() {
     const loading = new TextRenderable(renderer, {

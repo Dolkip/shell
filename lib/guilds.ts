@@ -1,6 +1,6 @@
 import { TabSelectRenderable, TabSelectRenderableEvents } from "@opentui/core";
 import { renderer } from "../renderer";
-import { client } from "../discord"
+import { client } from "../discord/client"
 import { theme } from "../theme"
 import { guildMenuContainer } from "../components/guilds"
 

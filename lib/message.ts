@@ -2,7 +2,7 @@ import { TextRenderable, BoxRenderable, MarkdownRenderable, SyntaxStyle, TextAtt
 import { renderer } from "../renderer";
 import { theme } from "../theme";
 import { Message, GuildMember } from "discord.js";
-import { getColour, getName } from "../discord"
+import { getColour, getName } from "../discord/members"
 
 const syntaxStyle = SyntaxStyle.fromStyles({
   "markup.heading": { fg: theme.markdown.heading, bold: true },
@@ -75,7 +75,6 @@ export async function makeMessage(message: Message) {
         fg: theme.dim,
         content: repliedTo.content || "[attachment]",
         syntaxStyle,
-        wrap: "word"
       });
 
       reply.add(replyChar);

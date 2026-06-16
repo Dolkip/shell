@@ -2,7 +2,7 @@ import { TextareaRenderable, BoxRenderable } from "@opentui/core"
 import { renderer } from "../renderer"
 import { theme } from "../theme"
 import { currentChannelId } from "../config"
-import { sendMessage } from "../discord"
+import { sendMessage } from "../discord/messages"
 import { hintBox } from "./messagehint"
 import { initHintSystem, processTextForSend } from "../lib/messagehint"
 

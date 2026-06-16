@@ -1,5 +1,6 @@
 import { DMChannel, PartialGroupDMChannel, ChannelType, type Channel } from "discord.js"
 import { client } from "./client"
+import { searchMembers } from "../lib/search"
 
 export async function openDM(userId: string): Promise<DMChannel> {
     return client.users.createDM(userId)
@@ -52,29 +53,10 @@ export function isDMChannel(channelId: string): boolean {
 }
 
 export async function searchUsers(query: string): Promise<Array<{ userId: string; username: string; displayName: string }>> {
-    if (!query.trim()) return [] as Array<{ userId: string; username: string; displayName: string }>
+    if (!query.trim()) return []
 
-    const lc = query.toLowerCase()
-    const seen = new Set<string>()
-    const results: Array<{ userId: string; username: string; displayName: string }> = []
-
-    for (const guild of client.guilds.cache.values()) {
-        for (const [, member] of guild.members.cache) {
-            if (seen.has(member.id)) continue
-            const user = member.user
-            const matchNick = member.nickname?.toLowerCase().includes(lc)
-            const matchUser = user.username.toLowerCase().includes(lc)
-            const matchDisplay = user.globalName?.toLowerCase().includes(lc)
-            if (matchNick || matchUser || matchDisplay) {
-                seen.add(member.id)
-                results.push({
-                    userId: member.id,
-                    username: user.username,
-                    displayName: member.nickname ?? user.globalName ?? user.username,
-                })
-            }
-        }
-    }
+    const results = searchMembers(query)
+    const seen = new Set(results.map(r => r.userId))
 
     if (/^\d{17,19}$/.test(query.trim())) {
         try {
@@ -89,5 +71,5 @@ export async function searchUsers(query: string): Promise<Array<{ userId: string
         } catch {}
     }
 
-    return results.sort((a, b) => a.displayName.localeCompare(b.displayName))
+    return results
 }
