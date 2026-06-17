@@ -5,6 +5,7 @@ import { currentChannelId } from "../config"
 import { sendMessage } from "../discord/messages"
 import { hintBox } from "./messagehint"
 import { initHintSystem, processTextForSend } from "../lib/messagehint"
+import { systemCommand, parseArgs } from "../system" 
 
 export const textArea = new TextareaRenderable(renderer, {
     width: "100%",
@@ -19,7 +20,7 @@ export const textArea = new TextareaRenderable(renderer, {
     selectionBg: theme.input.selectionBg,
     selectionFg: theme.input.selectionFg,
     placeholder: "Type here. Ctrl+S to send.",
-    onSubmit: () => {
+    onSubmit: async () => {
       const text = processTextForSend();
       if (text.length === 0) {
         return;
@@ -29,6 +30,12 @@ export const textArea = new TextareaRenderable(renderer, {
       }
       const channelId = currentChannelId;
       textArea.setText("");
+      if (text.startsWith("!")) {
+        const cmd = parseArgs(text.trim().slice(1))
+        console.log(`dispatching system command: ${cmd[0]}`)
+        await systemCommand(cmd)
+        return;
+      };
       void sendMessage(channelId, text)
         .catch((error) => {
           textArea.setText(text);

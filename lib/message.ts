@@ -13,7 +13,7 @@ const syntaxStyle = SyntaxStyle.fromStyles({
   "markup.italic": { italic: true },
   "markup.strikethrough": { fg: theme.dim },
   "markup.raw": { fg: theme.markdown.code },
-  "markup.raw.block": { fg: theme.markdown.codeBlock },
+  "markup.raw.block": { fg: theme.markdown.code },
   "markup.link": { fg: theme.markdown.link, underline: true },
   "markup.link.url": { fg: theme.markdown.link, underline: true },
   "markup.link.label": { fg: theme.markdown.link },
@@ -52,7 +52,7 @@ export async function makeMessage(message: Message) {
     width: "100%",
     backgroundColor: theme.message.base,
     marginBottom: 0,
-    padding: 0,
+    // padding: 1,
     onMouseOver: () => {
       container.backgroundColor = theme.message.hover
     },
@@ -72,7 +72,7 @@ export async function makeMessage(message: Message) {
 
     if (repliedTo) {
       const reply = new BoxRenderable(renderer, {
-        flexDirection: "row",
+        flexDirection: "row"
       });
 
       const replyChar = new TextRenderable(renderer, {
@@ -97,6 +97,8 @@ export async function makeMessage(message: Message) {
         fg: theme.dim,
         content: resolveContent(repliedTo) || "[attachment]",
         syntaxStyle,
+        flexGrow: 1,
+        width: "100%",
       });
 
       reply.add(replyChar);

@@ -5,6 +5,8 @@ import { client } from "../discord/client"
 import { getCurrentGuildId } from "../lib/channels"
 import { getColour } from "../discord/members"
 
+const WIDTH = 30
+
 const STATUS_DOT: Record<string, string | undefined> = {
   online: "#3BA55D",
   idle: "#FAA61A",
@@ -19,7 +21,7 @@ function statusColor(member: { presence?: { status?: string | null } | null }): 
 
 export const userListBox = new BoxRenderable(renderer, {
   id: "user-list",
-  width: 30,
+  width: WIDTH,
   flexShrink: 0,
   flexDirection: "column",
 })
