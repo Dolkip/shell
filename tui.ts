@@ -5,6 +5,7 @@ import { textArea } from "./components/messagebox"
 import { dmBox, dmSearchBox, selectNextResult, selectPrevResult } from "./components/dmview"
 import { config, currentChannelId, setCurrentChannelId, addPersistentDMChannel } from "./config"
 import { channelBox, hideUserList, toggleUserList, refreshUserList, userListVisible } from "./components/channelbox"
+import { bannerPing } from "./components/banner"
 import { client } from "./discord/client"
 import { getGuilds } from "./discord/guilds"
 import { isDMChannel } from "./discord/dms"
@@ -57,6 +58,17 @@ export async function TUI() {
 
   ensureGuildMenu()
   await restoreStartupChannel()
+/*
+  setInterval(() => {
+    try {
+      const ping = client.ws.ping;
+      bannerPing.content = ping != null ? `Ping: ${ping}ms` : "Ping: ?";
+      renderer.requestRender();
+    } catch {
+      // renderer may be destroyed during shutdown
+    }
+  }, 1000);
+  */
 
   renderer.root.add(app)
   setupMessageListeners()

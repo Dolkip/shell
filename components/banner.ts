@@ -23,5 +23,13 @@ export const bannerText = new TextRenderable(renderer, {
     fg: theme.dim,
 })
 
+export const bannerPing = new TextRenderable(renderer, {
+    id: "banner-ping",
+    content: "ping",
+    marginLeft: "auto",
+    fg: theme.dim,
+})
+
 banner.add(bannerTitle)
 banner.add(bannerText)
+// banner.add(bannerPing)
