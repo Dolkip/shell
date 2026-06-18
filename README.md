@@ -1,19 +1,18 @@
-# ◐ Shell: A tiny Discord terminal client
+# **◐ Shell** is a tiny Discord terminal client
 
-To install dependencies:
+## What is ◐ Shell?
+◐ Shell is a custom Discord Terminal User Interface client thing designed for operating special bots (shellbots) in a way similar to users.
 
-```bash
-bun install
-```
+## What can I use it for?
+As ◐ Shell is designed to work in the terminal, no huge confusing Electron apps are needed. Also, one can run it in a GitHub Codespace and interact with it if direct Discord API connection is blocked on your end.
 
-To run:
+## Why does it exist?
+i wanted to discord at school, also TUIs are awesome
 
-```bash
-bun run index.ts
-```
+## Will I get banned?
+In theory, no. As far as I am aware, ◐ Shell is completely Discord TOS compliant. The TOS says something about automation not being allowed for human user accounts. We mitigate that by creating special shellbots instead. It legally uses the legal discord.js api legally, so the only thing Discord in theory can whack you with is ratelimits.
 
-This project was created using `bun init` in bun v1.3.14. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+## How do I contribute?
+contributions (if any will ever exist) are welcome. The codebase is agent-friendly (AGENTS.md, .agents/ with skills) so you can use agents to help.
 
-## Configuration
-
-Shell stores local configuration in `~/.shell/config.toml`. On first run it creates that file from `examples/config.toml`. Put your bot token in the `token` field there, or set `DISCORD_TOKEN` in your shell if you need a temporary override.
+Carroted, 2026

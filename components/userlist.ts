@@ -19,7 +19,7 @@ function statusColor(member: { presence?: { status?: string | null } | null }): 
   return (s && STATUS_DOT[s]) ?? STATUS_DOT.offline!
 }
 
-export const userListBox = new BoxRenderable(renderer, {
+  export const userListBox = new BoxRenderable(renderer, {
   id: "user-list",
   width: WIDTH,
   flexShrink: 0,
