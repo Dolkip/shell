@@ -46,20 +46,46 @@ function resolveContent(message: Message): string {
 }
 
 export async function makeMessage(message: Message) {
+  const colour = getColour(
+    message.member ?? undefined,
+    theme.text
+  );
+
   const container = new BoxRenderable(renderer, {
     id: message.id,
-    flexDirection: "column",
+    flexDirection: "row",
     width: "100%",
+    border: ["left"],
+    borderColor: colour,
+    // ooh awesome neat awesome cool wow cool awesome mhm poggers dope kek mhm yes awesome
+    customBorderChars: {
+      topLeft: " ",
+      topRight: " ",
+      bottomLeft: " ",
+      bottomRight: " ",
+      horizontal: " ",
+      vertical: "┃",
+      topT: " ",
+      bottomT: " ",
+      leftT: " ",
+      rightT: " ",
+      cross: " ",
+    },
+  });
+
+  const content = new BoxRenderable(renderer, {
+    flexDirection: "column",
+    flexGrow: 1,
     backgroundColor: theme.message.base,
-    marginBottom: 0,
-    // padding: 1,
     onMouseOver: () => {
-      container.backgroundColor = theme.message.hover
+      content.backgroundColor = theme.message.hover
     },
     onMouseOut: () => {
-      container.backgroundColor = theme.message.base
+      content.backgroundColor = theme.message.base
     }
   });
+
+  container.add(content);
 
   if (message.reference?.messageId) {
     let repliedTo = null;
@@ -105,9 +131,9 @@ export async function makeMessage(message: Message) {
       reply.add(replyUser);
       reply.add(replyText);
 
-      container.add(reply);
+      content.add(reply);
     } else {
-      container.add(
+      content.add(
         new TextRenderable(renderer, {
           fg: theme.dim,
           content: "┌── [unavailable message]",
@@ -120,11 +146,6 @@ export async function makeMessage(message: Message) {
     width: "100%",
     flexDirection: "row",
   });
-
-  const colour = getColour(
-    message.member ?? undefined,
-    theme.text
-  );
 
   const timestamp = new TextRenderable(renderer, {
     content: message.createdAt.toLocaleTimeString([], { month: "2-digit", day: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" }) + " ",
@@ -159,13 +180,12 @@ export async function makeMessage(message: Message) {
     width: "100%",
   });
   
-  //the buildy
   metaRow.add(userDisplay);
   metaRow.add(userName);
   metaRow.add(timestamp);
   contentBox.add(metaRow);
   contentBox.add(messageText);
-  container.add(contentBox);
+  content.add(contentBox);
   
   return container;
 }
