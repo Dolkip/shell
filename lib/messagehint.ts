@@ -45,16 +45,13 @@ export function processTextForSend(): string {
     if (typeof userId !== "string") continue
     const mentionHtml = `<@${userId}>`
 
-    const mentionText = text.slice(em.start, em.end)
-    if (mentionText.startsWith("@")) {
-      result = result.slice(0, em.start) + mentionHtml + result.slice(em.end)
-    } else {
-      const start = text.indexOf("@", Math.max(0, em.start - 1))
-      if (start === -1 || start > em.start + 2) continue
-      let end = start + 1
-      while (end < text.length && !/\s/.test(text[end]!)) end++
-      result = result.slice(0, start) + mentionHtml + result.slice(end)
-    }
+    // extmark offsets are in display columns; text.slice uses code-unit indices.
+    // Find @ near the extmark start (code-unit position) and scan for the word end.
+    const at = text.lastIndexOf("@", em.start + 1)
+    if (at === -1 || at < em.start - 2) continue
+    let end = at + 1
+    while (end < text.length && !/\s/.test(text[end]!)) end++
+    result = result.slice(0, at) + mentionHtml + result.slice(end)
   }
 
   return result
