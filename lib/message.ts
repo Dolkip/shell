@@ -78,6 +78,7 @@ export async function makeMessage(message: Message, onFocus?: (id: string) => vo
   const content = new BoxRenderable(renderer, {
     id: `msg-content-${message.id}`,
     flexDirection: "column",
+    paddingX: 1,
     flexGrow: 1,
     backgroundColor: theme.message.base,
     onMouseOver: () => {
