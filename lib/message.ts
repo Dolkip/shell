@@ -45,7 +45,7 @@ function resolveContent(message: Message): string {
   return content
 }
 
-export async function makeMessage(message: Message) {
+export async function makeMessage(message: Message, onFocus?: (id: string) => void) {
   const colour = getColour(
     message.member ?? undefined,
     theme.text
@@ -53,10 +53,12 @@ export async function makeMessage(message: Message) {
 
   const container = new BoxRenderable(renderer, {
     id: message.id,
+    focusable: true,
     flexDirection: "row",
     width: "100%",
     border: ["left"],
     borderColor: colour,
+    focusedBorderColor: colour,
     // ooh awesome neat awesome cool wow cool awesome mhm poggers dope kek mhm yes awesome
     customBorderChars: {
       topLeft: " ",
@@ -74,6 +76,7 @@ export async function makeMessage(message: Message) {
   });
 
   const content = new BoxRenderable(renderer, {
+    id: `msg-content-${message.id}`,
     flexDirection: "column",
     flexGrow: 1,
     backgroundColor: theme.message.base,
@@ -82,7 +85,11 @@ export async function makeMessage(message: Message) {
     },
     onMouseOut: () => {
       content.backgroundColor = theme.message.base
-    }
+    },
+    onMouseDown: () => {
+      onFocus?.(message.id)
+      container.focus()
+    },
   });
 
   container.add(content);

@@ -8,7 +8,10 @@ export interface KeybindActions {
   onCtrlTab: () => void
   onDmDown: () => void
   onDmUp: () => void
+  onChatUp: () => void
+  onChatDown: () => void
   isChannelSelectFocused: () => boolean
+  isChatFocused: () => boolean
   isDmSearchFocused: () => boolean
   isDmActive: () => boolean
 }
@@ -31,6 +34,18 @@ export function setupKeybinds(actions: KeybindActions): void {
     }
 
     if (actions.isChannelSelectFocused()) return
+
+    if (key.name === "up" && actions.isChatFocused()) {
+      actions.onChatUp()
+      key.preventDefault()
+      return
+    }
+
+    if (key.name === "down" && actions.isChatFocused()) {
+      actions.onChatDown()
+      key.preventDefault()
+      return
+    }
 
     if (key.name === "pageup" || (key.alt && key.name === "up")) {
       void loadOlderChunk()

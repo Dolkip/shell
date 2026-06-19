@@ -6,6 +6,7 @@ export function makePopup(content: Renderable): Promise<void> {
     position: "absolute",
     zIndex: 500,
     width: "100%",
+    
     height: "100%",
     backgroundColor: "#00000080",
   })
@@ -19,6 +20,7 @@ export function makePopup(content: Renderable): Promise<void> {
     alignItems: "center",
   })
 
+  
   popup.add(content)
   renderer.root.add(bg)
   renderer.root.add(popup)
@@ -35,4 +37,4 @@ export function makePopup(content: Renderable): Promise<void> {
     }
     renderer.keyInput.on("keypress", onKey)
   })
-}
+}b  

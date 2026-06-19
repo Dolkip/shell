@@ -11,7 +11,7 @@ import { getGuilds } from "./discord/guilds"
 import { isDMChannel } from "./discord/dms"
 import { setOnDmCreated } from "./lib/dm"
 import { loadGuildChannels, selectChannel, initGuildSelector, syncChannelSelection, refreshDMChannels, getCurrentGuildId, setOnChannelSelect } from "./lib/channels"
-import { initializeChat, loadChannelMessages, setupMessageListeners, setupChatScrollHandler } from "./lib/chat-history"
+import { initializeChat, loadChannelMessages, setupMessageListeners, setupChatScrollHandler, chatCursorUp, chatCursorDown, chatCursorClear, isChatFocused } from "./lib/chat-history"
 import { syncGuildSelection, ensureGuildMenu, refreshGuilds, setOnGuildItemSelected } from "./lib/guilds"
 import { focusManager, activateTabNavigation } from "./lib/focus"
 import { setupKeybinds } from "./lib/keybinds"
@@ -93,6 +93,7 @@ export async function TUI() {
     },
     onCtrlU: () => toggleUserList(),
     onEscape: () => {
+      if (isChatFocused()) { chatCursorClear(); return }
       if (userListVisible) { hideUserList(); return }
       if (dmViewActive) {
         if (renderer.root.findDescendantById("dm-user-select")?.focused) { dmSearchBox.focus(); return }
@@ -102,7 +103,10 @@ export async function TUI() {
     onCtrlTab: () => { renderer.root.findDescendantById("channel-select")?.focus() },
     onDmDown: () => selectNextResult(),
     onDmUp: () => selectPrevResult(),
+    onChatUp: () => chatCursorUp(),
+    onChatDown: () => chatCursorDown(),
     isChannelSelectFocused: () => !!renderer.root.findDescendantById("channel-select")?.focused,
+    isChatFocused: () => isChatFocused(),
     isDmSearchFocused: () => dmSearchBox.focused,
     isDmActive: () => dmViewActive,
   })
@@ -180,3 +184,7 @@ async function restoreStartupChannel() {
     }
   }
 }
+
+renderer.on("destroy", () => {
+  console.log("Rendered destroyed, shutting down TUI...")
+})

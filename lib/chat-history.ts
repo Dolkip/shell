@@ -17,10 +17,33 @@ const WINDOW_SIZE = CHUNK_SIZE * WINDOW_CHUNKS
 let isHistoryLoading = false
 let activeFetchToken = 0
 let messageNodes: BoxRenderable[] = []
+let selectedIndex = -1
 
 import { withTimeout } from "./util"
 
 const LOAD_TIMEOUT = 30_000
+
+function getContentBox(node: BoxRenderable): BoxRenderable | undefined {
+  return node.findDescendantById(`msg-content-${node.id}`) as BoxRenderable | undefined
+}
+
+function clampSelection(): void {
+  if (messageNodes.length === 0) {
+    selectedIndex = -1
+  } else if (selectedIndex >= messageNodes.length) {
+    selectedIndex = messageNodes.length - 1
+  }
+}
+
+function updateCursorVisual(): void {
+  for (let i = 0; i < messageNodes.length; i++) {
+    const content = getContentBox(messageNodes[i]!)
+    if (!content) continue
+    content.backgroundColor = i === selectedIndex ? theme.message.hover : theme.message.base
+  }
+  const sel = messageNodes[selectedIndex]
+  if (sel) chatBox.scrollChildIntoView(sel.id)
+}
 
 function showLoading() {
     const loading = new TextRenderable(renderer, {
@@ -42,7 +65,13 @@ function showError(message: string) {
 }
 
 async function renderMessages(messages: Message[]) {
-    return Promise.all(messages.map((message) => makeMessage(message)))
+  return Promise.all(messages.map((message) => makeMessage(message, (id) => {
+    const idx = messageNodes.findIndex(n => n.id === id)
+    if (idx >= 0) {
+      selectedIndex = idx
+      updateCursorVisual()
+    }
+  })))
 }
 
 function clearChatView() {
@@ -51,11 +80,31 @@ function clearChatView() {
     }
 }
 
+function attachMessageHandlers(): void {
+  for (const node of messageNodes) {
+    node.onKeyDown = (key) => {
+      if (key.name === "up") {
+        chatCursorUp()
+        key.preventDefault()
+      } else if (key.name === "down") {
+        chatCursorDown()
+        key.preventDefault()
+      } else if (key.name === "escape") {
+        chatCursorClear()
+        key.preventDefault()
+      }
+    }
+  }
+}
+
 function rebuildChatView() {
     clearChatView()
     for (const child of messageNodes) {
         chatBox.add(child)
     }
+    clampSelection()
+    updateCursorVisual()
+    attachMessageHandlers()
 }
 
 function scrollChildIntoViewAfterLayout(childId: string) {
@@ -241,6 +290,38 @@ export function setupMessageListeners() {
             rebuildChatView()
         }
     })
+}
+
+export function isChatFocused(): boolean {
+  return chatBox.focused
+}
+
+export function chatCursorUp(): void {
+  if (messageNodes.length === 0) return
+  if (selectedIndex < 0) {
+    selectedIndex = messageNodes.length - 1
+  } else if (selectedIndex > 0) {
+    selectedIndex--
+  }
+  updateCursorVisual()
+  messageNodes[selectedIndex]?.focus()
+}
+
+export function chatCursorDown(): void {
+  if (messageNodes.length === 0) return
+  if (selectedIndex < 0 || selectedIndex >= messageNodes.length - 1) {
+    selectedIndex = messageNodes.length - 1
+  } else {
+    selectedIndex++
+  }
+  updateCursorVisual()
+  messageNodes[selectedIndex]?.focus()
+}
+
+export function chatCursorClear(): void {
+  selectedIndex = -1
+  updateCursorVisual()
+  chatBox.focus()
 }
 
 export function setupChatScrollHandler() {
