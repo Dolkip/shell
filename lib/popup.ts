@@ -37,4 +37,4 @@ export function makePopup(content: Renderable): Promise<void> {
     }
     renderer.keyInput.on("keypress", onKey)
   })
-}b  
+} 

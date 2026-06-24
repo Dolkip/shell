@@ -79,6 +79,7 @@ export async function makeMessage(message: Message, onFocus?: (id: string) => vo
     id: `msg-content-${message.id}`,
     flexDirection: "column",
     flexGrow: 1,
+    paddingX: 1,
     backgroundColor: theme.message.base,
     onMouseOver: () => {
       content.backgroundColor = theme.message.hover
