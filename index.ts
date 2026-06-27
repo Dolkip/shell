@@ -27,6 +27,10 @@ async function main() {
     shutdown(1)
   }
 
+  const readyPromise = new Promise<void>((resolve) => {
+    client.once("clientReady", () => resolve())
+  })
+
   try {
     await client.login(token)
   } catch (e) {
@@ -34,9 +38,7 @@ async function main() {
     shutdown(1)
   }
 
-  await new Promise<void>((resolve) => {
-    client.once("clientReady", () => resolve())
-  })
+  await readyPromise
 
   if (state.dmChannels.length > 0) {
     const valid = await restoreDMChannels(state.dmChannels)
