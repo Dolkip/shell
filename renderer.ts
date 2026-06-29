@@ -4,6 +4,7 @@ import { client } from "./discord/client";
 
 export const renderer = await createCliRenderer({
   exitOnCtrlC: true,
+  openConsoleOnError: true,
   consoleOptions: {
     position: ConsolePosition.BOTTOM,
     sizePercent: 30,

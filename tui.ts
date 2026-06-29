@@ -1,11 +1,10 @@
-import type { TabSelectOption } from "@opentui/core"
+import { TextRenderable, type TabSelectOption } from "@opentui/core"
 import { renderer } from "./renderer"
 import { chatBox } from "./components/chat"
 import { textArea } from "./components/messagebox"
 import { dmBox, dmSearchBox, selectNextResult, selectPrevResult } from "./components/dmview"
 import { config, currentChannelId, setCurrentChannelId, addPersistentDMChannel } from "./config"
 import { channelBox, hideUserList, toggleUserList, refreshUserList, userListVisible } from "./components/channelbox"
-import { bannerPing } from "./components/banner"
 import { client } from "./discord/client"
 import { getGuilds } from "./discord/guilds"
 import { isDMChannel } from "./discord/dms"
@@ -16,20 +15,13 @@ import { syncGuildSelection, ensureGuildMenu, refreshGuilds, setOnGuildItemSelec
 import { focusManager, activateTabNavigation } from "./lib/focus"
 import { setupKeybinds } from "./lib/keybinds"
 import { buildApp, main } from "./lib/layout"
+import { theme } from "./theme"
 
 export async function TUI() {
   const app = buildApp()
 
   if (!currentChannelId && config.id) {
     setCurrentChannelId(config.id)
-  }
-
-  if (client.isReady()) {
-    await initializeChat()
-  } else {
-    client.once("clientReady", async () => {
-      await initializeChat()
-    })
   }
 
   setOnChannelSelect((channelId: string) => {
@@ -56,21 +48,43 @@ export async function TUI() {
     })
   })
 
-  ensureGuildMenu()
-  await restoreStartupChannel()
+  renderer.root.add(app)
+
+  try {
+    if (client.isReady()) {
+      await initializeChat()
+    } else {
+      client.once("clientReady", async () => {
+        await initializeChat()
+      })
+    }
+
+    ensureGuildMenu()
+    await restoreStartupChannel()
+  } catch (error) {
+    console.error("TUI initialization failed:", error)
+    renderer.console.show()
+    chatBox.add(new TextRenderable(renderer, {
+      id: "tui-error",
+      content: ` Error: ${error instanceof Error ? error.message : String(error)}`,
+      fg: theme.accent,
+    }))
+  }
 /*
   setInterval(() => {
     try {
       const ping = client.ws.ping;
-      bannerPing.content = ping != null ? `Ping: ${ping}ms` : "Ping: ?";
-      renderer.requestRender();
+      const bp = renderer.root.findDescendantById("banner-ping") as TextRenderable | undefined
+      if (bp) {
+        bp.content = ping != null ? `Ping: ${ping}ms` : "Ping: ?";
+        renderer.requestRender();
+      }
     } catch {
       // renderer may be destroyed during shutdown
     }
   }, 1000);
   */
 
-  renderer.root.add(app)
   setupMessageListeners()
   setupChatScrollHandler()
 
@@ -186,5 +200,5 @@ async function restoreStartupChannel() {
 }
 
 renderer.on("destroy", () => {
-  console.log("Rendered destroyed, shutting down TUI...")
+  console.log("Renderer destroyed, shutting down TUI...")
 })
